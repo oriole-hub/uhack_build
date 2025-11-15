@@ -149,7 +149,13 @@ const OrganizationPage = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Пытаемся найти scrollable контейнер
+    const contentWrapper = document.querySelector('.organization-content-wrapper');
+    if (contentWrapper) {
+      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -408,7 +414,7 @@ const OrganizationPage = () => {
               </button>
               <div className="action-icons">
                 <button className="icon-btn" title="QR-код" onClick={() => setQrDialogOpen(true)}>
-                  <Icon name="qr-code_button_all_theme.svg" size="small" />
+                  <Icon name="qr-code_button_all_theme" size="small" />
                 </button>
                 <button className="icon-btn" title="Настройки" onClick={() => setEditDialogOpen(true)}>
                   <Icon name="settings_button" size="small" useTheme={true} />

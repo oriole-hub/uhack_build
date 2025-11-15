@@ -87,7 +87,7 @@
   outline: none;
   font-family: 'Ubounded', Arial, sans-serif;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, color 0.3s ease;
   background-color: white;
 
   &::placeholder {
@@ -95,13 +95,9 @@
     font-size: 14px;
   }
 
-  &:focus {
-    border-color: #61F3C0;
-    box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
-    outline: none;
-  }
-
+  &:focus,
   &.focused {
+    border-color: #61f3c0;
     box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
   }
 
@@ -116,7 +112,14 @@
     caret-color: #ffffff !important;
   }
 
-  // Для светлой темы - черный текст
+  .dark-mode &:-webkit-autofill,
+  .dark-mode &:-webkit-autofill:hover,
+  .dark-mode &:-webkit-autofill:focus,
+  .dark-mode &:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+  }
+
   &:not(.dark-mode):-webkit-autofill,
   &:not(.dark-mode):-webkit-autofill:hover,
   &:not(.dark-mode):-webkit-autofill:focus,
@@ -126,21 +129,10 @@
   }
 }
 
-/* Темная тема - черные инпуты с белым текстом */
 .dark-mode .verification-input {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border-color: #333333;
-}
-
-.dark-mode .verification-input::placeholder {
-  color: #888888 !important;
-}
-
-.dark-mode .verification-input:focus {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #61F3C0;
 }
 
 .verification-actions {

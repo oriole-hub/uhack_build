@@ -103,12 +103,12 @@ export const authService = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: userData.username || userData.fullName || userData.fullname,
+          fullName: userData.username || userData.fullName,
           email: userData.email,
           phone: userData.phone || null,
           password: userData.password,
           companyName: userData.companyName,
-          role: userData.role || 'Founder'
+          role: userData.role || 'User'
         })
       });
 

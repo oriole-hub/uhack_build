@@ -70,10 +70,10 @@ const Dashboard = () => {
       });
 
       setOrganizations(validOrgs);
-    } catch (error) {
-      console.error('Ошибка загрузки организаций:', error);
-      // Убираем всплывающую ошибку - просто логируем в консоль
-    } finally {
+      } catch (error) {
+        console.error('Ошибка загрузки организаций:', error);
+        // Убираем всплывающую ошибку - просто логируем в консоль
+      } finally {
       setLoading(false);
     }
   };
@@ -123,7 +123,13 @@ const Dashboard = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Пытаемся найти scrollable контейнер
+    const contentWrapper = document.querySelector('.dashboard-content-wrapper');
+    if (contentWrapper) {
+      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleScrollToTop = (e) => {
@@ -293,7 +299,6 @@ const Dashboard = () => {
                               className="btn-delete-org"
                               onClick={(e) => handleDeleteOrganization(e, org.id)}
                               title="Удалить организацию"
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
                             >
                               <Icon name="delete_button" size="small" useTheme={true} />
                             </button>

@@ -30,12 +30,12 @@ export default function VerificationPage() {
     e.preventDefault();
     
     if (!formData.email || !formData.code) {
-      setError('Пожалуйста, введите email и код верификации');
+      setError('Пожалуйста, введите email и код подтверждения');
       return;
     }
 
     if (formData.code.length !== 6) {
-      setError('Код верификации должен содержать 6 цифр');
+      setError('Код подтверждения должен содержать 6 цифр');
       return;
     }
 
@@ -73,7 +73,7 @@ export default function VerificationPage() {
         localStorage.removeItem('pendingVerificationEmail');
         setTimeout(() => navigate('/login'), 2000);
       } else {
-        setError(data.detail || data.error || 'Ошибка верификации. Пожалуйста, проверьте код и попробуйте снова.');
+        setError(data.detail || data.error || 'Ошибка подтверждения. Пожалуйста, проверьте код и попробуйте снова.');
       }
     } catch (error) {
       console.error('Verification error:', error);
@@ -85,7 +85,7 @@ export default function VerificationPage() {
 
   const handleResendCode = async () => {
     if (!formData.email) {
-      setError('Требуется email для повторной отправки кода');
+      setError('Email обязателен для повторной отправки кода');
       return;
     }
 
@@ -120,9 +120,9 @@ export default function VerificationPage() {
       }
 
       if (response.ok) {
-        setSuccess('Новый код верификации отправлен на ваш email!');
+        setSuccess('Новый код подтверждения отправлен на ваш email!');
       } else {
-        setError(data.detail || data.error || 'Не удалось отправить код. Пожалуйста, попробуйте снова.');
+        setError(data.detail || data.error || 'Ошибка повторной отправки кода. Пожалуйста, попробуйте снова.');
       }
     } catch (error) {
       console.error('Resend error:', error);
@@ -144,7 +144,7 @@ export default function VerificationPage() {
             style={{ borderBottomColor: isDark ? '#ffffff' : theme.TITLE_TEXT, flexDirection: 'row', alignItems: 'center', gap: '15px' }}
           >
             <h1 className="verification-title" style={{ color: theme.TITLE_TEXT, margin: 0 }}>Подтверждение Email</h1>
-            <img 
+            <img
               src={`/assets/icons/main_logo_icon_${isDark ? 'white' : 'black'}.svg`}
               alt="Logo"
               style={{ height: '28px', width: 'auto' }}
@@ -152,7 +152,7 @@ export default function VerificationPage() {
           </div>
 
           <p className="verification-description" style={{ color: theme.LABEL_TEXT }}>
-            Мы отправили 6-значный код верификации на <strong>{formData.email}</strong>. Пожалуйста, введите код ниже для подтверждения вашего аккаунта.
+            Мы отправили 6-значный код подтверждения на <strong>{formData.email}</strong>. Пожалуйста, введите код ниже для подтверждения вашего аккаунта.
           </p>
 
           {error && (
@@ -177,7 +177,7 @@ export default function VerificationPage() {
               onChange={handleChange}
               onFocus={() => setFocusedField('email')}
               onBlur={() => setFocusedField(null)}
-              style={{
+               style={{
                 borderColor: focusedField === 'email' ? theme.ACCENT : (formData.email ? theme.ACCENT : theme.INPUT_BORDER),
                 backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
                 color: isDark ? '#ffffff' : theme.INPUT_TEXT,
@@ -194,7 +194,7 @@ export default function VerificationPage() {
               onFocus={() => setFocusedField('code')}
               onBlur={() => setFocusedField(null)}
               maxLength={6}
-              style={{
+               style={{
                 borderColor: focusedField === 'code' ? theme.ACCENT : (formData.code ? theme.ACCENT : theme.INPUT_BORDER),
                 backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
                 color: isDark ? '#ffffff' : theme.INPUT_TEXT,

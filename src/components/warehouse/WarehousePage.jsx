@@ -498,7 +498,13 @@ const WarehousePage = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Пытаемся найти scrollable контейнер
+    const contentWrapper = document.querySelector('.warehouse-content-wrapper');
+    if (contentWrapper) {
+      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Форматирует адрес для отображения
@@ -596,7 +602,7 @@ const WarehousePage = () => {
             </div>
             <div className="stat-card stat-card-items">
               <div className="stat-icon">
-                <Icon name="Group 21.svg" size="large" />
+                <Icon name="add_icon" size="large" useTheme={true} />
               </div>
               <div className="stat-content">
                 <div className="stat-label">Всего позиций</div>

@@ -385,22 +385,13 @@ const CreateWarehouseDialog = ({ open, onClose, onCreate }) => {
         </DialogContent>
 
         <DialogActions>
-          <Button 
-            onClick={handleClose} 
-            disabled={loading}
-            style={{ color: '#10b981', borderColor: '#10b981' }}
-          >
+          <Button onClick={handleClose} disabled={loading}>
             Отмена
           </Button>
           <Button
             type="submit"
             variant="contained"
             disabled={loading}
-            style={{ 
-              backgroundColor: '#10b981', 
-              color: 'white',
-              '&:hover': { backgroundColor: '#059669' }
-            }}
           >
             {loading ? 'Создание...' : 'Создать склад'}
           </Button>

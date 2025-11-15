@@ -92,7 +92,6 @@
     caret-color: #ffffff !important;
   }
 
-  // Для светлой темы
   .dark-mode &:-webkit-autofill,
   .dark-mode &:-webkit-autofill:hover,
   .dark-mode &:-webkit-autofill:focus,
@@ -101,7 +100,6 @@
     -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
   }
 
-  // Для светлой темы - черный текст
   &:not(.dark-mode):-webkit-autofill,
   &:not(.dark-mode):-webkit-autofill:hover,
   &:not(.dark-mode):-webkit-autofill:focus,
@@ -129,10 +127,6 @@
     &::-moz-textfield-decoration {
       display: none;
     }
-  }
-
-  &.focused {
-    box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
   }
 }
 
@@ -267,26 +261,15 @@
 }
 
 /* Улучшенная поддержка для всех браузеров */
-.login-input:focus {
+.login-input:focus,
+.login-input.focused {
   box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
-  outline: none;
 }
 
-/* Темная тема - черные инпуты с белым текстом */
 .dark-mode .login-input {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border-color: #333333;
-}
-
-.dark-mode .login-input::placeholder {
-  color: #888888 !important;
-}
-
-.dark-mode .login-input:focus {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #61F3C0;
 }
 
 /* Скрываем браузерные элементы управления паролем */

@@ -58,7 +58,13 @@ const StockOperationsPage = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Пытаемся найти scrollable контейнер
+    const contentWrapper = document.querySelector('.stock-content-wrapper');
+    if (contentWrapper) {
+      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   if (loading) {

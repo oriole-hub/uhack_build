@@ -84,7 +84,7 @@
   font-size: 14px;
   transition: all 0.3s ease;
   
-  // Убираем браузерные стили автозаполнения для темной темы
+  // Убираем браузерные стили автозаполнения
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus,
@@ -95,7 +95,14 @@
     caret-color: #ffffff !important;
   }
 
-  // Для светлой темы - черный текст
+  .dark-mode &:-webkit-autofill,
+  .dark-mode &:-webkit-autofill:hover,
+  .dark-mode &:-webkit-autofill:focus,
+  .dark-mode &:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+  }
+
   &:not(.dark-mode):-webkit-autofill,
   &:not(.dark-mode):-webkit-autofill:hover,
   &:not(.dark-mode):-webkit-autofill:focus,
@@ -115,10 +122,6 @@
 
   &::placeholder {
     font-size: 14px;
-  }
-
-  &.focused {
-    box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
   }
 }
 
@@ -286,29 +289,17 @@
 
 /* Улучшенная поддержка для всех браузеров */
 .register-input:focus,
-.role-select:focus {
+.register-input.focused,
+.role-select:focus,
+.role-select.focused {
   box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
-  outline: none;
 }
 
-/* Темная тема - черные инпуты с белым текстом */
 .dark-mode .register-input,
 .dark-mode .role-select {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border-color: #333333;
-}
-
-.dark-mode .register-input::placeholder,
-.dark-mode .role-select option {
-  color: #888888 !important;
-}
-
-.dark-mode .register-input:focus,
-.dark-mode .role-select:focus {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #61F3C0;
 }
 
 /* Скрываем браузерные элементы управления паролем */

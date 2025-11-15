@@ -51,18 +51,19 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.username?.trim()) newErrors.username = 'Требуется имя пользователя';
-    if (!formData.email?.trim()) newErrors.email = 'Требуется email';
-    // Телефон теперь необязательный
-    if (formData.phone && !/^\+?[\d\s\-\(\)]+$/.test(formData.phone)) {
-      newErrors.phone = 'Пожалуйста, введите действительный номер телефона';
-    }
-    if (!formData.password?.trim()) newErrors.password = 'Требуется пароль';
-    if (!formData.companyName?.trim()) newErrors.companyName = 'Требуется название компании';
-    if (!formData.role?.trim()) newErrors.role = 'Требуется роль';
+    if (!formData.username?.trim()) newErrors.username = 'Имя пользователя обязательно';
+    if (!formData.email?.trim()) newErrors.email = 'Email обязателен';
+    // Телефон теперь необязателен
+    if (!formData.password?.trim()) newErrors.password = 'Пароль обязателен';
+    if (!formData.companyName?.trim()) newErrors.companyName = 'Название компании обязательно';
+    if (!formData.role?.trim()) newErrors.role = 'Роль обязательна';
     
     if (formData.email && !formData.email.includes('@')) {
-      newErrors.email = 'Пожалуйста, введите действительный адрес электронной почты';
+      newErrors.email = 'Пожалуйста, введите действительный email адрес';
+    }
+    
+    if (formData.phone && formData.phone.trim() && !/^\+?[\d\s\-()]+$/.test(formData.phone)) {
+      newErrors.phone = 'Пожалуйста, введите действительный номер телефона';
     }
     
     if (formData.password && formData.password.length < 6) {
@@ -95,8 +96,8 @@ export default function RegisterPage() {
     }
   };
 
-  // Проверяем заполненность обязательных полей (телефон необязательный)
-  const isFormFilled = formData.username?.trim() && formData.email?.trim() && formData.password?.trim() && formData.companyName?.trim() && formData.role?.trim();
+  // Телефон теперь необязателен, поэтому не проверяем его
+  const isFormFilled = formData.username && formData.email && formData.password && formData.companyName && formData.role;
 
   return (
     <div className="register-page" style={{ backgroundColor: theme.PAGE_BG }}>
@@ -107,7 +108,7 @@ export default function RegisterPage() {
             style={{ borderBottomColor: isDark ? '#ffffff' : theme.TITLE_TEXT, flexDirection: 'row', alignItems: 'center', gap: '15px' }}
           >
             <h1 className="register-title" style={{ color: theme.TITLE_TEXT, margin: 0 }}>Регистрация</h1>
-            <img 
+            <img
               src={`/assets/icons/main_logo_icon_${isDark ? 'white' : 'black'}.svg`}
               alt="Logo"
               style={{ height: '32px', width: 'auto' }}
@@ -231,25 +232,25 @@ export default function RegisterPage() {
             </select>
             {errors.role && <div className="error-message">{errors.role}</div>}
 
-            <div className={`password-field ${formData.password ? 'filled' : ''} ${focusedField === 'password' ? 'focused' : ''}`}>
+            <div className={`password-field ${formData.password ? 'filled' : ''}`}>
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 placeholder="Пароль"
-                className={`register-input ${errors.password ? 'input-error' : ''}`}
+                className={`register-input ${errors.password ? 'input-error' : ''} ${focusedField === 'password' ? 'focused' : ''}`}
                 value={formData.password}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('password')}
                 onBlur={() => setFocusedField(null)}
-                style={{
-                  borderColor: focusedField === 'password' ? theme.ACCENT : (errors.password ? '#ff6b6b' : (formData.password ? theme.ACCENT : theme.INPUT_BORDER)),
-                  backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
-                  color: isDark ? '#ffffff' : theme.INPUT_TEXT,
-                }}
+               style={{
+                borderColor: focusedField === 'password' ? theme.ACCENT : (errors.password ? '#ff6b6b' : (formData.password ? theme.ACCENT : theme.INPUT_BORDER)),
+                backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
+                color: isDark ? '#ffffff' : theme.INPUT_TEXT,
+              }}
               />
               <img
                 src={showPassword ? "/assets/LoginPage/eye-on.png" : "/assets/LoginPage/eye-off.png"}
-                alt="переключить видимость пароля"
+                alt="toggle password"
                 className="eye-icon"
                 onClick={() => setShowPassword(prev => !prev)}
                 style={{ filter: theme.EYE_ICON_FILTER }}

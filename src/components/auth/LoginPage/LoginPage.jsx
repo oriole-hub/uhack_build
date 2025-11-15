@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [hasInviteToken, setHasInviteToken] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
 
   /** Проверяет и сохраняет токен приглашения из URL при загрузке */
   useEffect(() => {
@@ -40,6 +39,8 @@ export default function LoginPage() {
     setError('');
   };
 
+  const [focusedField, setFocusedField] = useState(null);
+
   const validateForm = () => {
     if (!formData.email || !formData.password) {
       setError('Пожалуйста, заполните все поля');
@@ -47,7 +48,7 @@ export default function LoginPage() {
     }
     
     if (!formData.email.includes('@')) {
-      setError('Пожалуйста, введите действительный адрес электронной почты');
+      setError('Пожалуйста, введите действительный email адрес');
       return false;
     }
     
@@ -84,7 +85,7 @@ export default function LoginPage() {
             style={{ borderBottomColor: isDark ? '#ffffff' : theme.TITLE_TEXT, flexDirection: 'row', alignItems: 'center', gap: '15px' }}
           >
             <h1 className="login-title" style={{ color: theme.TITLE_TEXT, margin: 0 }}>Вход</h1>
-            <img 
+            <img
               src={`/assets/icons/main_logo_icon_${isDark ? 'white' : 'black'}.svg`}
               alt="Logo"
               style={{ height: '32px', width: 'auto' }}
@@ -136,25 +137,25 @@ export default function LoginPage() {
               }}
             />
 
-            <div className={`password-field ${formData.password ? 'filled' : ''} ${focusedField === 'password' ? 'focused' : ''}`}>
+            <div className={`password-field ${formData.password ? 'filled' : ''}`}>
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 placeholder="Пароль"
-                className="login-input"
+                className={`login-input ${focusedField === 'password' ? 'focused' : ''}`}
                 value={formData.password}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('password')}
                 onBlur={() => setFocusedField(null)}
-                style={{
-                  borderColor: focusedField === 'password' ? theme.ACCENT : (formData.password ? theme.ACCENT : theme.INPUT_BORDER),
-                  backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
-                  color: isDark ? '#ffffff' : theme.INPUT_TEXT,
-                }}
+               style={{
+                borderColor: focusedField === 'password' ? theme.ACCENT : (formData.password ? theme.ACCENT : theme.INPUT_BORDER),
+                backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
+                color: isDark ? '#ffffff' : theme.INPUT_TEXT,
+              }}
               />
               <img
                 src={showPassword ? "/assets/LoginPage/eye-on.png" : "/assets/LoginPage/eye-off.png"}
-                alt="переключить видимость пароля"
+                alt="toggle password"
                 className="eye-icon"
                 onClick={() => setShowPassword(prev => !prev)}
                 style={{ filter: theme.EYE_ICON_FILTER }}

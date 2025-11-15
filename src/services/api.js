@@ -70,12 +70,10 @@ class ApiService {
 
   /** Регистрация пользователя */
   async register(userData) {
-    // Преобразуем username в fullName для API
     const registrationData = {
       ...userData,
-      fullName: userData.username || userData.fullName || userData.fullname,
+      fullName: userData.username || userData.fullName,
     };
-    // Удаляем username, если он был, так как API ожидает только fullName
     delete registrationData.username;
     return this.request('/auth/reg', {
       method: 'POST',
@@ -105,19 +103,19 @@ class ApiService {
   }
 
   // ==================== ПОЛЬЗОВАТЕЛИ ====================
-  async searchUsers(orgId, extraParams = {}) {
-    if (!orgId) {
-      throw new Error('org_id is required for user search');
-    }
+  async searchUsers(query = '', extraParams = {}) {
     const params = new URLSearchParams();
-    params.append('org_id', orgId);
+    if (query) {
+      params.append('q', query);
+    }
     Object.entries(extraParams || {}).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         params.append(key, value);
       }
     });
     const queryString = params.toString();
-    return this.request(`/users/search?${queryString}`);
+    const endpoint = queryString ? `/users/search?${queryString}` : '/users/search';
+    return this.request(endpoint);
   }
 
   async getUserDashboard() {
@@ -132,7 +130,7 @@ class ApiService {
     // Используем эндпоинт /api/users/me/invite/{invitation_id}
     return this.request(`/users/me/invite/${invitationId}`, {
       method: 'POST',
-      body: { action: action },
+      body: { action },
     });
   }
 
@@ -146,27 +144,23 @@ class ApiService {
 
   // ==================== ОРГАНИЗАЦИИ ====================
   async getOrganizations() {
-    // Согласно openapi.json, /orga/ возвращает список всех организаций
-    // /orga/me возвращает одну организацию пользователя (MyOrga)
     try {
+      // Сначала пробуем получить список всех организаций через /orga/
       const response = await this.request('/orga/');
-      // Если это массив, возвращаем как есть
       if (Array.isArray(response)) {
         return response;
       }
-      // Если это объект с полем organizations, возвращаем массив
       if (response && Array.isArray(response.organizations)) {
         return response.organizations;
       }
-      // Если это одна организация, возвращаем массив с одним элементом
       if (response && response.id) {
         return [response];
       }
       return [];
     } catch (error) {
       console.warn('⚠️ Ошибка получения списка организаций через /orga/, пробуем /orga/me:', error.message);
-      // Если /orga/ не работает (CORS или другая ошибка), пробуем /orga/me
       try {
+        // Fallback на /orga/me если /orga/ не работает
         const myOrg = await this.request('/orga/me');
         if (myOrg && myOrg.id) {
           return [myOrg];
@@ -174,7 +168,6 @@ class ApiService {
         return [];
       } catch (meError) {
         console.error('❌ Ошибка получения организаций через /orga/me:', meError.message);
-        // Возвращаем пустой массив вместо ошибки, чтобы не ломать UI
         return [];
       }
     }

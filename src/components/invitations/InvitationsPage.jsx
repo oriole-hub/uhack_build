@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTheme } from '../../theme/ThemeContext';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../theme/ThemeContext';
 import { apiService } from '../../services/api';
 import '../css/styles.scss';
 import './InvitationsPage.scss';
 
 const InvitationsPage = () => {
-  const { isDark } = useTheme();
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -178,8 +178,8 @@ const InvitationsPage = () => {
     <div className={`invitations-page ${isDark ? 'dark-mode' : ''}`}>
       <div className="invitations-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button 
-            className="btn-back" 
+          <button
+            className="btn-back"
             onClick={() => navigate(-1)}
             style={{
               background: 'none',

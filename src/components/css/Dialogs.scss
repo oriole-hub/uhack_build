@@ -339,7 +339,7 @@
         color: #ffffff;
 
         &:focus {
-          border-color: #007bff;
+          border-color: #10b981;
         }
 
         &::placeholder {
@@ -448,7 +448,7 @@
 
       &:focus {
         outline: none;
-        border-color: #007bff;
+        border-color: #10b981;
       }
 
       &.error {
@@ -495,7 +495,7 @@
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: rgba(0, 123, 255, 0.05);
+      background-color: rgba(16, 185, 129, 0.05);
     }
 
     input[type="checkbox"] {
@@ -523,14 +523,14 @@
   cursor: pointer;
   transition: 0.2s ease;
 
-      &.btn-contained {
-        background: #10b981;
-        color: #fff;
-        border: none;
+  &.btn-contained {
+    background: #10b981;
+    color: #fff;
+    border: none;
 
-        &:hover {
-          background: #059669;
-        }
+    &:hover {
+      background: #059669;
+    }
 
     &:disabled {
       background: #ccc;
@@ -538,15 +538,15 @@
     }
   }
 
-      &.btn-outlined {
-        border: 1px solid #10b981;
-        color: #10b981;
-        background: #fff;
+  &.btn-outlined {
+    border: 1px solid #10b981;
+    color: #10b981;
+    background: #fff;
 
-        &:hover {
-          background: rgba(16, 185, 129, 0.1);
-        }
-      }
+    &:hover {
+      background: rgba(16, 185, 129, 0.1);
+    }
+  }
 }
 
 /* ==================== СТИЛИ ДЛЯ ДИАЛОГА СОЗДАНИЯ НОМЕНКЛАТУРЫ ==================== */

@@ -118,7 +118,7 @@ const MembersTab = ({ members, onInvite, onRemove, onEdit }) => {
                     disabled={member.role === 'OWNER'} 
                     onClick={() => onRemove(member.id)}
                   >
-                    <Icon name="delete_icon" size="small" useTheme={true} />
+                    <Icon name="delete_button" size="small" useTheme={true} />
                   </IconButton>
                 </TableCell>
               </TableRow>

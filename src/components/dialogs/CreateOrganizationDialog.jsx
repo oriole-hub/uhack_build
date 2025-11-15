@@ -47,7 +47,7 @@ const CreateOrganizationDialog = ({ onClose, onCreate }) => {
       }
     }
 
-    // Проверка КПП (9 цифр)
+    // Проверка КПП (9 цифр согласно openapi.json)
     if (!formData.kpp.trim()) {
       newErrors.kpp = 'КПП обязателен';
     } else {
