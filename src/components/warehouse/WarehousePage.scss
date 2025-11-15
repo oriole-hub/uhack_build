@@ -1,6 +1,7 @@
 @import '../organization/pages/styles/variables';
 @import '../organization/pages/styles/header';
 @import '../organization/pages/styles/sections';
+@import '../organization/pages/styles/tables';
 @import '../organization/pages/styles/buttons';
 @import '../organization/pages/styles/common';
 
@@ -78,7 +79,7 @@
 .warehouse-info-card {
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px 20px;
   margin: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -124,51 +125,6 @@
     }
   }
 
-  .warehouse-info-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding-right: 40px;
-  }
-
-  .warehouse-info-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-    align-items: flex-start;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .dark-mode & {
-      border-bottom-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .info-label {
-      font-weight: 600;
-      color: #1a1a1a;
-      min-width: 200px;
-      font-size: 14px;
-      line-height: 1.5;
-
-      .dark-mode & {
-        color: #ffffff;
-      }
-    }
-
-    .info-value {
-      color: #1a1a1a;
-      font-size: 14px;
-      flex: 1;
-      line-height: 1.5;
-
-      .dark-mode & {
-        color: #ffffff;
-      }
-    }
-  }
 }
 
 // Статистика
@@ -458,7 +414,7 @@
 
   .nomenclature-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1fr;
+    grid-template-columns: 2fr 1fr 1.5fr 1fr auto;
     gap: 0;
     padding: 16px 20px;
     border-bottom: 1px solid #e5e7eb;
@@ -504,6 +460,13 @@
 
     .dark-mode & {
       border-right-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.nomenclature-actions {
+      flex-direction: row;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 0;
     }
 
     .nomenclature-label {

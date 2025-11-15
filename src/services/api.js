@@ -145,31 +145,23 @@ class ApiService {
   // ==================== ОРГАНИЗАЦИИ ====================
   async getOrganizations() {
     try {
-      // Сначала пробуем получить список всех организаций через /orga/
-      const response = await this.request('/orga/');
-      if (Array.isArray(response)) {
-        return response;
+      // Используем /orga/me для получения организации текущего пользователя
+      const myOrg = await this.request('/orga/me');
+      if (myOrg && myOrg.id) {
+        return [myOrg];
       }
-      if (response && Array.isArray(response.organizations)) {
-        return response.organizations;
+      // Если ответ - массив, возвращаем его
+      if (Array.isArray(myOrg)) {
+        return myOrg;
       }
-      if (response && response.id) {
-        return [response];
+      // Если ответ содержит массив organizations, возвращаем его
+      if (myOrg && Array.isArray(myOrg.organizations)) {
+        return myOrg.organizations;
       }
       return [];
     } catch (error) {
-      console.warn('⚠️ Ошибка получения списка организаций через /orga/, пробуем /orga/me:', error.message);
-      try {
-        // Fallback на /orga/me если /orga/ не работает
-        const myOrg = await this.request('/orga/me');
-        if (myOrg && myOrg.id) {
-          return [myOrg];
-        }
-        return [];
-      } catch (meError) {
-        console.error('❌ Ошибка получения организаций через /orga/me:', meError.message);
-        return [];
-      }
+      console.error('❌ Ошибка получения организаций через /orga/me:', error.message);
+      return [];
     }
   }
 
@@ -323,6 +315,37 @@ class ApiService {
     return this.request(`/orga/create-qr/${organizationId}/?expires_in=${expiresIn}`);
   }
 
+  // ==================== QR-КОД ДЛЯ ОФФЛАЙН СКЛАДА ====================
+  /**
+   * POST /api/offline/sklad/{sklad_id}/token
+   * Создать токен для оффлайн доступа к складу
+   * @param {string} skladId - ID склада
+   * @param {number} expiresIn - Время жизни токена в секундах (60-604800, по умолчанию 86400)
+   * @returns {Promise<Object>} { token, expires_at, qr_url, qr_image }
+   */
+  async createOfflineSkladToken(skladId, expiresIn = 86400) {
+    return this.request(`/offline/sklad/${skladId}/token`, {
+      method: 'POST',
+      body: { expires_in: expiresIn }
+    });
+  }
+
+  /**
+   * GET /api/offline/sklad
+   * Получить оффлайн данные склада по токену
+   * @param {string} token - Токен доступа
+   * @param {string} deviceId - ID устройства
+   * @returns {Promise<Object>} Данные склада
+   */
+  async getOfflineSklad(token, deviceId) {
+    return this.request(`/offline/sklad?token=${encodeURIComponent(token)}&device_id=${encodeURIComponent(deviceId)}`);
+  }
+
+  // Старый метод для обратной совместимости
+  async generateOfflineSkladQrCode(skladId, expiresIn = 86400) {
+    return this.createOfflineSkladToken(skladId, expiresIn);
+  }
+
   async joinOrganization(qrCode) {
     const encodedQrCode = encodeURIComponent(qrCode);
     const token = localStorage.getItem('authToken');
@@ -378,15 +401,16 @@ class ApiService {
    * @param {number} limit - Лимит записей
    * @returns {Promise<Array>} Массив номенклатур
    */
-  async getNomenclatures(warehouseId = null, skip = 0, limit = 100) {
+  async getNomenclatures(warehouseId = null, skip = 0, limit = 100, search = '') {
     let endpoint = '/reestr/list';
     const params = new URLSearchParams();
 
-    if (warehouseId) {
-      params.append('warehouse_id', warehouseId);
-    }
     params.append('skip', skip);
     params.append('limit', limit);
+    
+    if (search && search.trim()) {
+      params.append('search', search.trim());
+    }
 
     if (params.toString()) {
       endpoint += `?${params.toString()}`;
@@ -836,6 +860,18 @@ class ApiService {
       ? `/docsklad/${docId}/items?item_id=${itemId}`
       : `/docsklad/${docId}/items`;
     return this.request(endpoint);
+  }
+
+  /**
+   * Получить номенклатуру документа по ID
+   * GET /api/docsklad/items/{item_id}
+   * @param {string} itemId - UUID номенклатуры в документе
+   * @returns {Promise<Object>} Номенклатура документа с quantity_actual
+   */
+  async getDocumentItem(itemId) {
+    return this.request(`/docsklad/items/${itemId}`, {
+      method: 'GET',
+    });
   }
 
   /**

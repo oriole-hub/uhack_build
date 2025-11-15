@@ -16,7 +16,6 @@ export default function RegisterPage() {
     email: '',
     phone: '',
     password: '',
-    companyName: '',
     role: '',
   });
 
@@ -55,7 +54,6 @@ export default function RegisterPage() {
     if (!formData.email?.trim()) newErrors.email = 'Email обязателен';
     // Телефон теперь необязателен
     if (!formData.password?.trim()) newErrors.password = 'Пароль обязателен';
-    if (!formData.companyName?.trim()) newErrors.companyName = 'Название компании обязательно';
     if (!formData.role?.trim()) newErrors.role = 'Роль обязательна';
     
     if (formData.email && !formData.email.includes('@')) {
@@ -97,7 +95,7 @@ export default function RegisterPage() {
   };
 
   // Телефон теперь необязателен, поэтому не проверяем его
-  const isFormFilled = formData.username && formData.email && formData.password && formData.companyName && formData.role;
+  const isFormFilled = formData.username && formData.email && formData.password && formData.role;
 
   return (
     <div className="register-page" style={{ backgroundColor: theme.PAGE_BG }}>
@@ -195,23 +193,6 @@ export default function RegisterPage() {
               }}
             />
             {errors.phone && <div className="error-message">{errors.phone}</div>}
-
-            <input
-              type="text"
-              name="companyName"
-              placeholder="Название компании"
-              className={`register-input ${errors.companyName ? 'input-error' : ''} ${formData.companyName ? 'filled' : ''} ${focusedField === 'companyName' ? 'focused' : ''}`}
-              value={formData.companyName}
-              onChange={handleChange}
-              onFocus={() => setFocusedField('companyName')}
-              onBlur={() => setFocusedField(null)}
-              style={{
-                borderColor: focusedField === 'companyName' ? theme.ACCENT : (errors.companyName ? '#ff6b6b' : (formData.companyName ? theme.ACCENT : theme.INPUT_BORDER)),
-                backgroundColor: isDark ? '#1a1a1a' : theme.INPUT_BG,
-                color: isDark ? '#ffffff' : theme.INPUT_TEXT,
-              }}
-            />
-            {errors.companyName && <div className="error-message">{errors.companyName}</div>}
 
             <select
               name="role"

@@ -174,8 +174,18 @@ const SkladDocumentDialog = ({ open, document: doc, warehouse, warehouses = [], 
         dataToSend.address_to = cleanedAddressTo;
       }
 
-      await onSave(dataToSend);
-      onClose();
+      const result = await onSave(dataToSend);
+      // Если это создание нового документа и onSave вернул документ, не закрываем диалог сразу
+      // Диалог закроется автоматически после открытия диалога номенклатур
+      if (!isEdit && result && result.id) {
+        // Не закрываем диалог, чтобы пользователь мог видеть, что документ создан
+        // Диалог закроется автоматически при открытии диалога номенклатур
+        setTimeout(() => {
+          onClose();
+        }, 100);
+      } else {
+        onClose();
+      }
     } catch (error) {
       console.error('Ошибка при сохранении документа:', error);
     } finally {
@@ -185,197 +195,219 @@ const SkladDocumentDialog = ({ open, document: doc, warehouse, warehouses = [], 
 
   const availableWarehouses = warehouses.length > 0 ? warehouses : (warehouse ? [warehouse] : []);
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleContentClick = (e) => {
+    e.stopPropagation();
+  };
+
+  if (!open) return null;
+
   return (
-    <div className={`dialog-overlay ${open ? 'active' : ''}`} onClick={onClose}>
-      <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
+    <div className="dialog-overlay active" onClick={handleOverlayClick}>
+      <div className="dialog-content create-organization-dialog" onClick={handleContentClick}>
         <div className="dialog-header">
           <h2>{isEdit ? 'Редактировать документ' : 'Создать документ'}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="dialog-form">
-          <div className="form-group">
-            <label htmlFor="doc_type">Тип документа *</label>
-            <select
-              id="doc_type"
-              value={formData.doc_type}
-              onChange={(e) => handleChange('doc_type', e.target.value)}
-              className={errors.doc_type ? 'error' : ''}
-              disabled={loading}
-            >
-              <option value="incoming">Приходный</option>
-              <option value="outgoing">Отходный</option>
-              <option value="inventory">Инвентаризация</option>
-            </select>
-            {errors.doc_type && <span className="error-message">{errors.doc_type}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="number">Номер документа *</label>
-            <input
-              type="text"
-              id="number"
-              value={formData.number}
-              onChange={(e) => handleChange('number', e.target.value)}
-              className={errors.number ? 'error' : ''}
-              disabled={loading}
-              placeholder="DOC-001"
-            />
-            {errors.number && <span className="error-message">{errors.number}</span>}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="description">Описание</label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              disabled={loading}
-              rows={3}
-              placeholder="Описание документа (необязательно)"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Склады *</label>
-            <div className="warehouses-checkbox-list">
-              {availableWarehouses.map((wh) => (
-                <label key={wh.id} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.sklad_ids.includes(wh.id)}
-                    onChange={() => handleWarehouseToggle(wh.id)}
-                    disabled={loading}
-                  />
-                  <span>{wh.name || wh.code || 'Склад'}</span>
-                </label>
-              ))}
+          <div className="form-grid">
+            <div className="form-row">
+              <label className="form-label">Тип документа *</label>
+              <select
+                className={`form-select ${errors.doc_type ? 'error' : ''}`}
+                value={formData.doc_type}
+                onChange={(e) => handleChange('doc_type', e.target.value)}
+                disabled={loading}
+              >
+                <option value="incoming">Приходный</option>
+                <option value="outgoing">Отходный</option>
+                <option value="inventory">Инвентаризация</option>
+              </select>
+              {errors.doc_type && <div className="error-text">{errors.doc_type}</div>}
             </div>
-            {errors.sklad_ids && <span className="error-message">{errors.sklad_ids}</span>}
-          </div>
 
-          {/* Адрес отправки (для отходных документов) */}
-          {(formData.doc_type === 'outgoing' || formData.doc_type === 'inventory') && (
-            <div className="form-section">
-              <h4>Адрес отправки</h4>
-              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Страна</label>
-                  <input
-                    type="text"
-                    value={formData.address_from.country || ''}
-                    onChange={(e) => handleAddressChange('address_from', 'country', e.target.value)}
-                    placeholder="Россия"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Город</label>
-                  <input
-                    type="text"
-                    value={formData.address_from.city || ''}
-                    onChange={(e) => handleAddressChange('address_from', 'city', e.target.value)}
-                    placeholder="Москва"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Улица</label>
-                  <input
-                    type="text"
-                    value={formData.address_from.street || ''}
-                    onChange={(e) => handleAddressChange('address_from', 'street', e.target.value)}
-                    placeholder="ул. Примерная"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Почтовый индекс</label>
-                  <input
-                    type="text"
-                    value={formData.address_from.postalCode || ''}
-                    onChange={(e) => handleAddressChange('address_from', 'postalCode', e.target.value)}
-                    placeholder="123456"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>Здание</label>
-                  <input
-                    type="text"
-                    value={formData.address_from.building || ''}
-                    onChange={(e) => handleAddressChange('address_from', 'building', e.target.value)}
-                    placeholder="1"
-                    disabled={loading}
-                  />
+            <div className="form-row">
+              <label className="form-label">Номер документа *</label>
+              <input
+                type="text"
+                className={`form-input ${errors.number ? 'error' : ''}`}
+                value={formData.number}
+                onChange={(e) => handleChange('number', e.target.value)}
+                placeholder="DOC-001"
+                disabled={loading}
+              />
+              {errors.number && <div className="error-text">{errors.number}</div>}
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">Описание</label>
+              <textarea
+                className="form-input"
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                rows={3}
+                placeholder="Описание документа (необязательно)"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">Склады *</label>
+              <div className="warehouses-checkbox-list">
+                {availableWarehouses.map((wh) => (
+                  <label key={wh.id} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.sklad_ids.includes(wh.id)}
+                      onChange={() => handleWarehouseToggle(wh.id)}
+                      disabled={loading}
+                    />
+                    <span>{wh.name || wh.code || 'Склад'}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.sklad_ids && <div className="error-text">{errors.sklad_ids}</div>}
+            </div>
+
+            {/* Адрес отправки (для отходных документов) */}
+            {(formData.doc_type === 'outgoing' || formData.doc_type === 'inventory') && (
+              <div className="form-section">
+                <h4>Адрес отправки</h4>
+                <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-row">
+                    <label className="form-label">Страна</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_from.country || ''}
+                      onChange={(e) => handleAddressChange('address_from', 'country', e.target.value)}
+                      placeholder="Россия"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label className="form-label">Город</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_from.city || ''}
+                      onChange={(e) => handleAddressChange('address_from', 'city', e.target.value)}
+                      placeholder="Москва"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label className="form-label">Улица</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_from.street || ''}
+                      onChange={(e) => handleAddressChange('address_from', 'street', e.target.value)}
+                      placeholder="ул. Примерная"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label className="form-label">Почтовый индекс</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_from.postalCode || ''}
+                      onChange={(e) => handleAddressChange('address_from', 'postalCode', e.target.value)}
+                      placeholder="123456"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                    <label className="form-label">Здание</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_from.building || ''}
+                      onChange={(e) => handleAddressChange('address_from', 'building', e.target.value)}
+                      placeholder="1"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Адрес назначения (для приходных документов) */}
-          {formData.doc_type === 'incoming' && (
-            <div className="form-section">
-              <h4>Адрес назначения</h4>
-              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
-                  <label>Страна</label>
-                  <input
-                    type="text"
-                    value={formData.address_to.country || ''}
-                    onChange={(e) => handleAddressChange('address_to', 'country', e.target.value)}
-                    placeholder="Россия"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Город</label>
-                  <input
-                    type="text"
-                    value={formData.address_to.city || ''}
-                    onChange={(e) => handleAddressChange('address_to', 'city', e.target.value)}
-                    placeholder="Москва"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Улица</label>
-                  <input
-                    type="text"
-                    value={formData.address_to.street || ''}
-                    onChange={(e) => handleAddressChange('address_to', 'street', e.target.value)}
-                    placeholder="ул. Примерная"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Почтовый индекс</label>
-                  <input
-                    type="text"
-                    value={formData.address_to.postalCode || ''}
-                    onChange={(e) => handleAddressChange('address_to', 'postalCode', e.target.value)}
-                    placeholder="123456"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label>Здание</label>
-                  <input
-                    type="text"
-                    value={formData.address_to.building || ''}
-                    onChange={(e) => handleAddressChange('address_to', 'building', e.target.value)}
-                    placeholder="1"
-                    disabled={loading}
-                  />
+            {/* Адрес назначения (для приходных документов) */}
+            {formData.doc_type === 'incoming' && (
+              <div className="form-section">
+                <h4>Адрес назначения</h4>
+                <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-row">
+                    <label className="form-label">Страна</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_to.country || ''}
+                      onChange={(e) => handleAddressChange('address_to', 'country', e.target.value)}
+                      placeholder="Россия"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label className="form-label">Город</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_to.city || ''}
+                      onChange={(e) => handleAddressChange('address_to', 'city', e.target.value)}
+                      placeholder="Москва"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label className="form-label">Улица</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_to.street || ''}
+                      onChange={(e) => handleAddressChange('address_to', 'street', e.target.value)}
+                      placeholder="ул. Примерная"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <label className="form-label">Почтовый индекс</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_to.postalCode || ''}
+                      onChange={(e) => handleAddressChange('address_to', 'postalCode', e.target.value)}
+                      placeholder="123456"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                    <label className="form-label">Здание</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={formData.address_to.building || ''}
+                      onChange={(e) => handleAddressChange('address_to', 'building', e.target.value)}
+                      placeholder="1"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          <div className="dialog-actions">
+          <div className="dialog-footer">
             <button
               type="button"
-              className="btn-outline"
+              className="btn btn-outlined"
               onClick={onClose}
               disabled={loading}
             >
@@ -383,7 +415,7 @@ const SkladDocumentDialog = ({ open, document: doc, warehouse, warehouses = [], 
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn btn-contained"
               disabled={loading}
             >
               {loading ? 'Сохранение...' : (isEdit ? 'Сохранить' : 'Создать')}
@@ -396,4 +428,3 @@ const SkladDocumentDialog = ({ open, document: doc, warehouse, warehouses = [], 
 };
 
 export default SkladDocumentDialog;
-

@@ -9,9 +9,10 @@ import InventoryReportDialog from '../dialogs/InventoryReportDialog';
 import CreateOperationForm from '../stock/dialogs/CreateOperationForm';
 import SkladDocumentDialog from '../dialogs/SkladDocumentDialog';
 import DocumentItemsDialog from '../dialogs/DocumentItemsDialog';
+import EditWarehouseDialog from '../dialogs/EditWarehouseDialog';
+import QrCodeDialog from '../dialogs/QrCodeDialog';
 import BarcodeScanner from '../barcode/BarcodeScanner';
 import WarehousePageSkeleton from '../common/WarehousePageSkeleton';
-import Icon from '../common/Icon';
 import './WarehousePage.scss';
 
 const WarehousePage = () => {
@@ -41,12 +42,16 @@ const WarehousePage = () => {
   const [operationLoading, setOperationLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [documentSearchTerm, setDocumentSearchTerm] = useState('');
   const [showDocuments, setShowDocuments] = useState(true);
   const [showNomenclatures, setShowNomenclatures] = useState(true);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [documentItemsDialogOpen, setDocumentItemsDialogOpen] = useState(false);
   const [selectedDocumentForItems, setSelectedDocumentForItems] = useState(null);
+  const [editWarehouseDialogOpen, setEditWarehouseDialogOpen] = useState(false);
+  const [selectedNomenclatureForEdit, setSelectedNomenclatureForEdit] = useState(null);
   const [statistics, setStatistics] = useState({
     totalSold: 0,
     totalInStock: 0,
@@ -99,10 +104,10 @@ const WarehousePage = () => {
 
   const fetchNomenclatures = useCallback(async (search = '', skip = 0) => {
     try {
-      console.log('🔄 Загрузка номенклатур для склада:', id);
+      console.log('🔄 Загрузка номенклатур для склада:', id, 'поиск:', search);
       
-      // Используем endpoint /api/reestr/list с фильтрацией по warehouse_id
-      const data = await apiService.getNomenclatures(id, skip, pagination.limit);
+      // Используем endpoint /api/reestr/list с параметром search
+      const data = await apiService.getNomenclatures(null, skip, pagination.limit, search);
       console.log('✅ Номенклатуры получены:', data);
       
       // Предполагаем, что API возвращает массив номенклатур
@@ -147,6 +152,7 @@ const WarehousePage = () => {
       // Закрываем диалог
       setNomenclatureDialogOpen(false);
       setPrefilledBarcode(null);
+      setSelectedNomenclatureForEdit(null);
       
     } catch (error) {
       console.error('❌ Ошибка создания номенклатуры:', error);
@@ -154,6 +160,41 @@ const WarehousePage = () => {
       showSnackbar(errorMessage, 'error');
       // Не закрываем диалог при ошибке, чтобы пользователь мог исправить данные
       throw error; // Пробрасываем ошибку, чтобы диалог не закрылся
+    }
+  };
+
+  /** Обрабатывает обновление номенклатуры */
+  const handleUpdateNomenclature = async (nomenclatureId, nomenclatureData) => {
+    try {
+      console.log('📦 Обновление номенклатуры:', nomenclatureId, nomenclatureData);
+      
+      // Проверяем обязательные поля
+      if (!nomenclatureData.name || !nomenclatureData.article) {
+        showSnackbar('Заполните обязательные поля: название и артикул', 'error');
+        return;
+      }
+
+      // Используем API для обновления номенклатуры
+      await apiService.updateNomenclature(nomenclatureId, nomenclatureData);
+      
+      console.log('✅ Номенклатура обновлена');
+      showSnackbar('Номенклатура успешно обновлена', 'success');
+      
+      // Обновляем списки номенклатур
+      await Promise.all([
+        fetchNomenclatures(),
+        fetchAllNomenclatures()
+      ]);
+      
+      // Закрываем диалог
+      setNomenclatureDialogOpen(false);
+      setSelectedNomenclatureForEdit(null);
+      
+    } catch (error) {
+      console.error('❌ Ошибка обновления номенклатуры:', error);
+      const errorMessage = error.message || 'Ошибка при обновлении номенклатуры';
+      showSnackbar(errorMessage, 'error');
+      throw error;
     }
   };
 
@@ -190,11 +231,22 @@ const WarehousePage = () => {
   }, [warehouse?.organization_id]);
 
   /** Загружает документы склада */
-  const fetchDocuments = useCallback(async () => {
+  const fetchDocuments = useCallback(async (search = '') => {
     try {
       setDocumentsLoading(true);
+      // Используем /api/docsklad/list с параметром sklad_id
       const docs = await apiService.getSkladDocuments(id);
-      const documentsArray = Array.isArray(docs) ? docs : [];
+      let documentsArray = Array.isArray(docs) ? docs : [];
+      
+      // Фильтруем по поисковому запросу (по ID документа)
+      if (search && search.trim()) {
+        const searchLower = search.trim().toLowerCase();
+        documentsArray = documentsArray.filter(doc => 
+          doc.id?.toLowerCase().includes(searchLower) ||
+          doc.number?.toLowerCase().includes(searchLower)
+        );
+      }
+      
       setDocuments(documentsArray);
     } catch (err) {
       console.error('❌ Ошибка загрузки документов:', err);
@@ -331,16 +383,24 @@ const WarehousePage = () => {
   /** Обрабатывает сохранение документа */
   const handleSaveDocument = async (formData) => {
     try {
+      let createdDocument = null;
       if (selectedDocument) {
         // Редактирование
         await apiService.updateSkladDocument(selectedDocument.id, formData);
         showSnackbar('Документ успешно обновлен', 'success');
       } else {
         // Создание
-        await apiService.createSkladDocument(formData);
+        createdDocument = await apiService.createSkladDocument(formData);
         showSnackbar('Документ успешно создан', 'success');
+        
+        // После создания документа автоматически открываем диалог добавления номенклатур
+        if (createdDocument && createdDocument.id) {
+          setSelectedDocumentForItems(createdDocument);
+          setDocumentItemsDialogOpen(true);
+        }
       }
       fetchDocuments();
+      return createdDocument;
     } catch (error) {
       console.error('❌ Ошибка сохранения документа:', error);
       showSnackbar(error.message || 'Ошибка при сохранении документа', 'error');
@@ -373,8 +433,34 @@ const WarehousePage = () => {
   const handleOpenCreateNomenclature = (barcode = null) => {
     console.log('🔵 Открытие диалога создания номенклатуры, barcode:', barcode);
     setPrefilledBarcode(barcode);
+    setSelectedNomenclatureForEdit(null);
     setNomenclatureDialogOpen(true);
     console.log('🔵 Диалог должен быть открыт, nomenclatureDialogOpen:', true);
+  };
+
+  /** Обрабатывает редактирование номенклатуры */
+  const handleEditNomenclature = (nomenclature) => {
+    setSelectedNomenclatureForEdit(nomenclature);
+    setNomenclatureDialogOpen(true);
+  };
+
+  /** Обрабатывает удаление номенклатуры */
+  const handleDeleteNomenclature = async (nomenclatureId) => {
+    if (!window.confirm('Удалить номенклатуру?')) {
+      return;
+    }
+
+    try {
+      await apiService.deleteNomenclature(nomenclatureId);
+      showSnackbar('Номенклатура удалена', 'success');
+      await Promise.all([
+        fetchNomenclatures(),
+        fetchAllNomenclatures()
+      ]);
+    } catch (error) {
+      console.error('❌ Ошибка удаления номенклатуры:', error);
+      showSnackbar('Ошибка при удалении номенклатуры', 'error');
+    }
   };
 
   /** Обрабатывает сканирование штрихкода */
@@ -498,12 +584,52 @@ const WarehousePage = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    // Пытаемся найти scrollable контейнер
-    const contentWrapper = document.querySelector('.warehouse-content-wrapper');
-    if (contentWrapper) {
-      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Находим все возможные scrollable контейнеры
+    const selectors = [
+      '.warehouse-content-wrapper',
+      '.warehouse-page',
+      'main',
+      '#root',
+      'body',
+      'html'
+    ];
+    
+    // Прокручиваем все найденные контейнеры
+    selectors.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        try {
+          // Проверяем, является ли элемент scrollable
+          const isScrollable = element.scrollHeight > element.clientHeight;
+          if (isScrollable || selector === 'html' || selector === 'body') {
+            element.scrollTo({ top: 0, behavior: 'smooth' });
+            // Также устанавливаем scrollTop напрямую для надежности
+            if (element.scrollTop !== undefined) {
+              element.scrollTop = 0;
+            }
+          }
+        } catch (e) {
+          // Если scrollTo не поддерживается, используем scrollTop
+          if (element.scrollTop !== undefined) {
+            element.scrollTop = 0;
+          }
+        }
+      }
+    });
+    
+    // Прокручиваем window
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    
+    // Также прокручиваем document.documentElement
+    try {
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+    } catch (e) {
+      document.documentElement.scrollTop = 0;
     }
   };
 
@@ -523,75 +649,112 @@ const WarehousePage = () => {
       {/* Верхняя панель */}
       <div className="warehouse-top-bar">
         <h1 className="warehouse-title">Склад {warehouse.name || `№${warehouse.code || id}`}</h1>
-        <button className="btn-logout" onClick={handleLogout}>
-          ВЫЙТИ
+        <button 
+          className="btn-back" 
+          onClick={handleBack}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 16px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            color: 'inherit'
+          }}
+        >
+          ← Назад
         </button>
       </div>
 
       <div className="warehouse-content-wrapper">
         {/* Карточка информации о складе */}
-        <div className="warehouse-info-card">
-          <button className="warehouse-edit-btn" onClick={() => {/* TODO: открыть диалог редактирования */}}>
-            <Icon name="change_button" size="small" useTheme={true} />
+        <div className="warehouse-info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <button 
+            className="warehouse-edit-btn" 
+            onClick={() => setEditWarehouseDialogOpen(true)}
+            style={{ alignSelf: 'flex-end', marginBottom: '16px' }}
+          >
+            <img 
+              src={`/assets/icons/change_button_${isDark ? 'white' : 'black'}.svg`}
+              alt="Редактировать"
+              style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+            />
           </button>
-          <div className="warehouse-info-list">
-            <div className="warehouse-info-item">
-              <span className="info-label">Тип:</span>
-              <span className="info-value">{warehouse.type === 'MAIN' ? 'Основной' : 'Дополнительный'}</span>
-            </div>
-            <div className="warehouse-info-item">
-              <span className="info-label">Код:</span>
-              <span className="info-value">{warehouse.code || 'Не указан'}</span>
-            </div>
-            <div className="warehouse-info-item">
-              <span className="info-label">ID:</span>
-              <span className="info-value">#{warehouse.id?.slice(-6) || 'Не указан'}</span>
-            </div>
-            <div className="warehouse-info-item">
-              <span className="info-label">Количество рабочих:</span>
-              <span className="info-value">137</span>
-            </div>
-            <div className="warehouse-info-item">
-              <span className="info-label">Адрес:</span>
-              <span className="info-value">{formatAddress()}</span>
-            </div>
-            {warehouse.contact_person && (
-              <>
-                <div className="warehouse-info-item">
-                  <span className="info-label">Контактное лицо:</span>
-                  <span className="info-value">{warehouse.contact_person.name || warehouse.contact_person.fullName || 'Не указано'}</span>
-                </div>
-                <div className="warehouse-info-item">
-                  <span className="info-label">Телефон:</span>
-                  <span className="info-value">{warehouse.contact_person.phone || 'Не указан'}</span>
-                </div>
-                <div className="warehouse-info-item">
-                  <span className="info-label">Почта:</span>
-                  <span className="info-value">{warehouse.contact_person.email || 'Не указана'}</span>
-                </div>
-              </>
-            )}
-          </div>
+          <table className="info-table" style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'center' }}>Тип</th>
+                <th style={{ textAlign: 'center' }}>Код</th>
+                <th style={{ textAlign: 'center' }}>ID</th>
+                <th style={{ textAlign: 'center' }}>Количество рабочих</th>
+                <th style={{ textAlign: 'center' }}>Адрес</th>
+                {warehouse.contact_person && (
+                  <>
+                    <th style={{ textAlign: 'center' }}>Контактное лицо</th>
+                    <th style={{ textAlign: 'center' }}>Телефон</th>
+                    <th style={{ textAlign: 'center' }}>Почта</th>
+                  </>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ textAlign: 'center' }}>{warehouse.type === 'MAIN' ? 'Основной' : 'Дополнительный'}</td>
+                <td style={{ textAlign: 'center' }}>{warehouse.code || 'Не указан'}</td>
+                <td style={{ textAlign: 'center' }}>#{warehouse.id?.slice(-6) || 'Не указан'}</td>
+                <td style={{ textAlign: 'center' }}>137</td>
+                <td style={{ textAlign: 'center' }}>{formatAddress()}</td>
+                {warehouse.contact_person && (
+                  <>
+                    <td style={{ textAlign: 'center' }}>{warehouse.contact_person.name || warehouse.contact_person.fullName || 'Не указано'}</td>
+                    <td style={{ textAlign: 'center' }}>{warehouse.contact_person.phone || 'Не указан'}</td>
+                    <td style={{ textAlign: 'center' }}>{warehouse.contact_person.email || 'Не указана'}</td>
+                  </>
+                )}
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {/* Статистика */}
         <div className="warehouse-statistics">
-          <h2 className="statistics-title">Статистика</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 className="statistics-title">Статистика</h2>
+            <button
+              className="btn-add-nomenclature"
+              onClick={() => setQrDialogOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                fontFamily: 'Unbounded, sans-serif'
+              }}
+            >
+              <img 
+                src="/assets/icons/qr-code_button_all_theme.svg"
+                alt="QR-код"
+                style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+              />
+              QR-код склада
+            </button>
+          </div>
           <div className="statistics-cards">
-            <div className="stat-card stat-card-sold">
-              <div className="stat-icon">
-                <Icon name="add_icon" size="large" useTheme={true} />
-              </div>
-              <div className="stat-content">
-                <div className="stat-label">Продано товаров</div>
-                <div className="stat-value">
-                  {statisticsLoading ? '...' : statistics.totalSold.toLocaleString('ru-RU')}
-                </div>
-              </div>
-            </div>
             <div className="stat-card stat-card-stock">
               <div className="stat-icon">
-                <Icon name="settings_button" size="large" useTheme={true} />
+                <img 
+                  src={`/assets/icons/settings_button_${isDark ? 'white' : 'black'}.svg`}
+                  alt="На складе"
+                  style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                />
               </div>
               <div className="stat-content">
                 <div className="stat-label">На складе</div>
@@ -602,7 +765,11 @@ const WarehousePage = () => {
             </div>
             <div className="stat-card stat-card-items">
               <div className="stat-icon">
-                <Icon name="add_icon" size="large" useTheme={true} />
+                <img 
+                  src={`/assets/icons/add_icon_${isDark ? 'white' : 'black'}.svg`}
+                  alt="Позиций"
+                  style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                />
               </div>
               <div className="stat-content">
                 <div className="stat-label">Всего позиций</div>
@@ -685,6 +852,30 @@ const WarehousePage = () => {
                         <span className="nomenclature-label">Количество:</span>
                         <span className="nomenclature-value">{nomenclature.quantity || '0'}</span>
                       </div>
+                      <div className="nomenclature-cell nomenclature-actions">
+                        <button
+                          className="btn-edit"
+                          onClick={() => handleEditNomenclature(nomenclature)}
+                          title="Редактировать"
+                        >
+                          <img 
+                            src={`/assets/icons/change_button_${isDark ? 'white' : 'black'}.svg`}
+                            alt="Редактировать"
+                            style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          />
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteNomenclature(nomenclature.id)}
+                          title="Удалить"
+                        >
+                          <img 
+                            src={`/assets/icons/delete_button_${isDark ? 'white' : 'black'}.svg`}
+                            alt="Удалить"
+                            style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -709,6 +900,11 @@ const WarehousePage = () => {
                   type="text"
                   placeholder="Поиск по ID"
                   className="search-input"
+                  value={documentSearchTerm}
+                  onChange={(e) => {
+                    setDocumentSearchTerm(e.target.value);
+                    fetchDocuments(e.target.value);
+                  }}
                 />
                 <span className="search-icon">🔍</span>
               </div>
@@ -718,13 +914,7 @@ const WarehousePage = () => {
               >
                 Добавить документ +
               </button>
-              <button
-                className="btn-qr-scan"
-                onClick={() => {/* TODO: открыть сканер */}}
-                title="Сканировать QR"
-              >
-                📷
-              </button>
+
             </div>
           </div>
 
@@ -766,21 +956,33 @@ const WarehousePage = () => {
                           onClick={() => handleOpenDocumentItems(doc)}
                           title="Номенклатуры"
                         >
-                          <Icon name="settings_button" size="small" useTheme={true} />
+                          <img 
+                            src={`/assets/icons/settings_button_${isDark ? 'white' : 'black'}.svg`}
+                            alt="Номенклатуры"
+                            style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          />
                         </button>
                         <button
                           className="btn-edit"
                           onClick={() => handleEditDocument(doc)}
                           title="Редактировать"
                         >
-                          <Icon name="change_button" size="small" useTheme={true} />
+                          <img 
+                            src={`/assets/icons/change_button_${isDark ? 'white' : 'black'}.svg`}
+                            alt="Редактировать"
+                            style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          />
                         </button>
                         <button
                           className="btn-delete"
                           onClick={() => handleDeleteDocument(doc.id)}
                           title="Удалить"
                         >
-                          <Icon name="delete_button" size="small" useTheme={true} />
+                          <img 
+                            src={`/assets/icons/delete_button_${isDark ? 'white' : 'black'}.svg`}
+                            alt="Удалить"
+                            style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          />
                         </button>
                       </div>
                     </div>
@@ -809,11 +1011,14 @@ const WarehousePage = () => {
       <CreateNomenclatureDialog 
         open={nomenclatureDialogOpen}
         warehouse={warehouse}
+        nomenclature={selectedNomenclatureForEdit}
         onClose={() => {
           setNomenclatureDialogOpen(false);
           setPrefilledBarcode(null);
+          setSelectedNomenclatureForEdit(null);
         }}
         onCreate={handleCreateNomenclature}
+        onUpdate={handleUpdateNomenclature}
         prefilledBarcode={prefilledBarcode}
       />
 
@@ -863,6 +1068,35 @@ const WarehousePage = () => {
           setSelectedDocumentForItems(null);
         }}
       />
+
+      {/* Диалог QR-кода склада */}
+      <QrCodeDialog
+        open={qrDialogOpen}
+        organizationId={id}
+        organizationName={warehouse?.name || `Склад ${warehouse?.code || id}`}
+        onClose={() => setQrDialogOpen(false)}
+      />
+
+      {/* Диалог редактирования склада */}
+      {editWarehouseDialogOpen && (
+        <EditWarehouseDialog
+          warehouse={warehouse}
+          onClose={() => {
+            setEditWarehouseDialogOpen(false);
+          }}
+          onUpdate={async (id, data) => {
+            try {
+              await apiService.updateWarehouse(id, data);
+              await fetchWarehouse();
+              showSnackbar('Склад успешно обновлен', 'success');
+              setEditWarehouseDialogOpen(false);
+            } catch (error) {
+              console.error('Ошибка обновления склада:', error);
+              showSnackbar('Ошибка обновления склада', 'error');
+            }
+          }}
+        />
+      )}
 
       {/* Snackbar для уведомлений */}
       {snackbar.open && (

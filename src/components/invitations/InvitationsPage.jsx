@@ -7,7 +7,7 @@ import './InvitationsPage.scss';
 
 const InvitationsPage = () => {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -166,6 +166,57 @@ const InvitationsPage = () => {
     }
   };
 
+  /** Прокручивает страницу наверх */
+  const scrollToTop = () => {
+    // Находим все возможные scrollable контейнеры
+    const selectors = [
+      '.invitations-page',
+      '.invitations-content-wrapper',
+      'main',
+      '#root',
+      'body',
+      'html'
+    ];
+    
+    // Прокручиваем все найденные контейнеры
+    selectors.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        try {
+          // Проверяем, является ли элемент scrollable
+          const isScrollable = element.scrollHeight > element.clientHeight;
+          if (isScrollable || selector === 'html' || selector === 'body') {
+            element.scrollTo({ top: 0, behavior: 'smooth' });
+            // Также устанавливаем scrollTop напрямую для надежности
+            if (element.scrollTop !== undefined) {
+              element.scrollTop = 0;
+            }
+          }
+        } catch (e) {
+          // Если scrollTo не поддерживается, используем scrollTop
+          if (element.scrollTop !== undefined) {
+            element.scrollTop = 0;
+          }
+        }
+      }
+    });
+    
+    // Прокручиваем window
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    
+    // Также прокручиваем document.documentElement
+    try {
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+    } catch (e) {
+      document.documentElement.scrollTop = 0;
+    }
+  };
+
   if (loading) {
     return (
       <div className={`invitations-page ${isDark ? 'dark-mode' : ''}`}>
@@ -272,6 +323,80 @@ const InvitationsPage = () => {
           ))}
         </div>
       )}
+
+      {/* Боковые кнопки */}
+      <div className="invitations-side-buttons" style={{
+        position: 'fixed',
+        right: '20px',
+        bottom: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        zIndex: 1000
+      }}>
+        <button 
+          className="side-button scroll-top" 
+          onClick={scrollToTop} 
+          title="Наверх"
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            border: 'none',
+            background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            color: isDark ? '#ffffff' : '#1a1a1a',
+            fontSize: '24px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)';
+            e.target.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            e.target.style.transform = 'scale(1)';
+          }}
+        >
+          ↑
+        </button>
+        <button 
+          className="side-button theme-toggle" 
+          onClick={toggleTheme} 
+          title="Переключить тему"
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            border: 'none',
+            background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.15)';
+            e.target.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            e.target.style.transform = 'scale(1)';
+          }}
+        >
+          <img
+            src={`/assets/LoginPage/${isDark ? 'sun' : 'moon'}.svg`}
+            alt="Toggle theme"
+            style={{ width: '24px', height: '24px' }}
+          />
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Grid
-} from '@mui/material';
-
-
 import '../css/styles.scss';
 import '../css/Dialogs.scss';
-
-
-
 
 const EditOrganizationDialog = ({ open, organization, onClose, onSave }) => {
   const [formData, setFormData] = useState(organization);
@@ -35,58 +21,87 @@ const EditOrganizationDialog = ({ open, organization, onClose, onSave }) => {
     }));
   };
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleContentClick = (e) => {
+    e.stopPropagation();
+  };
+
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Редактировать организацию</DialogTitle>
-      <form onSubmit={handleSubmit}>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Название"
-                value={formData.name}
+    <div className="dialog-overlay active" onClick={handleOverlayClick}>
+      <div className="dialog-content create-organization-dialog" onClick={handleContentClick}>
+        <div className="dialog-header">
+          <h2>Редактировать организацию</h2>
+          <button className="dialog-close" onClick={onClose}>×</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="dialog-form">
+          <div className="form-grid">
+            <div className="form-row">
+              <label className="form-label">Название</label>
+              <input
+                type="text"
+                className="form-input"
+                value={formData?.name || ''}
                 onChange={(e) => handleChange('name', e.target.value)}
-                margin="normal"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Юридическое название"
-                value={formData.legalName}
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">Юридическое название</label>
+              <input
+                type="text"
+                className="form-input"
+                value={formData?.legalName || ''}
                 onChange={(e) => handleChange('legalName', e.target.value)}
-                margin="normal"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Описание"
-                value={formData.description}
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">Описание</label>
+              <textarea
+                className="form-input"
+                value={formData?.description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
-                margin="normal"
-                multiline
                 rows={3}
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="ИНН"
-                value={formData.taxId}
-                onChange={(e) => handleChange('taxId', e.target.value)}
-                margin="normal"
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">ИНН</label>
+              <input
+                type="text"
+                className="form-input"
+                value={formData?.inn || formData?.taxId || ''}
+                onChange={(e) => handleChange('inn', e.target.value)}
               />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Отмена</Button>
-          <Button type="submit" variant="contained">Сохранить</Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+            </div>
+          </div>
+
+          <div className="dialog-footer">
+            <button
+              type="button"
+              className="btn btn-outlined"
+              onClick={onClose}
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              className="btn btn-contained"
+            >
+              Сохранить
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

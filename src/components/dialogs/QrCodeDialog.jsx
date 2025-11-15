@@ -1,27 +1,8 @@
 // components/QrCodeDialog.jsx
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  TextField,
-  Grid,
-  Alert,
-  CircularProgress,
-  IconButton,
-  Tooltip
-} from '@mui/material';
-import {
-  ContentCopy as CopyIcon,
-  Download as DownloadIcon,
-  Refresh as RefreshIcon
-} from '@mui/icons-material';
-
 import { apiService } from '../../services/api';
+import '../css/styles.scss';
+import '../css/Dialogs.scss';
 
 const QrCodeDialog = ({ open, onClose, organizationId, organizationName }) => {
   const [qrData, setQrData] = useState(null);
@@ -36,11 +17,21 @@ const QrCodeDialog = ({ open, onClose, organizationId, organizationName }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiService.generateOrganizationQrCode(organizationId, expiresIn);
+      // Используем новый эндпоинт /api/offline/sklad/{sklad_id}/token
+      // organizationId используется как sklad_id
+      const data = await apiService.createOfflineSkladToken(organizationId, expiresIn);
       setQrData(data);
     } catch (error) {
-      console.error('Ошибка загрузки QR-кода:', error);
-      setError('Не удалось загрузить QR-код');
+      console.error('Ошибка загрузки QR-кода через /api/offline/sklad/{sklad_id}/token:', error);
+      // Если новый эндпоинт не работает, пробуем старый метод
+      try {
+        console.log('Пробуем старый метод generateOfflineSkladQrCode...');
+        const data = await apiService.generateOfflineSkladQrCode(organizationId, expiresIn);
+        setQrData(data);
+      } catch (fallbackError) {
+        console.error('Ошибка загрузки QR-кода (fallback):', fallbackError);
+        setError(`Не удалось загрузить QR-код: ${fallbackError.message || 'Неизвестная ошибка'}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -127,168 +118,201 @@ const QrCodeDialog = ({ open, onClose, organizationId, organizationName }) => {
     return `${hours} ${hours === 1 ? 'час' : hours < 5 ? 'часа' : 'часов'}`;
   };
 
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-    >
-      <DialogTitle>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6">
-            QR-код организации
-          </Typography>
-          <Tooltip title="Обновить QR-код">
-            <IconButton onClick={handleRefresh} disabled={loading}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-        {organizationName && (
-          <Typography variant="body2" color="textSecondary">
-            {organizationName}
-          </Typography>
-        )}
-      </DialogTitle>
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
-      <DialogContent>
-        <Grid container spacing={3}>
+  const handleContentClick = (e) => {
+    e.stopPropagation();
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="dialog-overlay active" onClick={handleOverlayClick}>
+      <div className="dialog-content create-organization-dialog" onClick={handleContentClick}>
+        <div className="dialog-header">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div>
+              <h2>QR-код организации</h2>
+              {organizationName && (
+                <div style={{ fontSize: '14px', marginTop: '4px', opacity: 0.9 }}>{organizationName}</div>
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="dialog-close"
+                onClick={handleRefresh}
+                disabled={loading}
+                title="Обновить QR-код"
+                style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.5 : 1
+                }}
+              >
+                ↻
+              </button>
+              <button 
+                className="dialog-close" 
+                onClick={onClose}
+                style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="dialog-form" style={{ padding: '28px' }}>
           {/* Настройки срока действия */}
-          <Grid item xs={12}>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Typography variant="body2">
-                Срок действия:
-              </Typography>
-              <TextField
-                size="small"
+          <div className="form-row">
+            <label className="form-label">Срок действия:</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <input
                 type="number"
+                className="form-input"
                 value={expiresIn / 3600}
                 onChange={(e) => handleExpiresInChange(e.target.value * 3600)}
-                inputProps={{
-                  min: 1,
-                  max: 168,
-                  step: 1
-                }}
-                sx={{ width: 80 }}
+                min={1}
+                max={168}
+                step={1}
+                style={{ width: '80px' }}
               />
-              <Typography variant="body2" color="textSecondary">
+              <span style={{ fontSize: '14px', color: '#6b7280' }}>
                 часов ({getExpiresInLabel(expiresIn)})
-              </Typography>
-            </Box>
-          </Grid>
+              </span>
+            </div>
+          </div>
 
           {/* QR-код */}
-          <Grid item xs={12}>
-            <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-              {loading ? (
-                <Box display="flex" flexDirection="column" alignItems="center" gap={2} py={4}>
-                  <CircularProgress />
-                  <Typography variant="body2" color="textSecondary">
-                    Генерация QR-кода...
-                  </Typography>
-                </Box>
-              ) : error ? (
-                <Alert severity="error" sx={{ width: '100%' }}>
-                  {error}
-                </Alert>
-              ) : qrData?.qr_image ? (
-                <>
-                  <Box
-                    component="img"
-                    src={qrData.qr_image}
-                    alt="QR Code"
-                    sx={{
-                      width: 200,
-                      height: 200,
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 1
-                    }}
-                  />
-
-                  <Typography variant="body2" color="textSecondary" align="center">
-                    {qrData.expires_at && (
-                      <>
-                        {formatExpiresAt(qrData.expires_at)}
-                        <br />
-                        <Typography
-                          variant="caption"
-                          color={getTimeUntilExpiry(qrData.expires_at).includes('истек') ? 'error' : 'textSecondary'}
-                        >
-                          {getTimeUntilExpiry(qrData.expires_at)}
-                        </Typography>
-                      </>
-                    )}
-                  </Typography>
-                </>
-              ) : null}
-            </Box>
-          </Grid>
+          <div className="form-row" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            {loading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '40px 0' }}>
+                <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid #e5e7eb', borderTop: '4px solid #10b981', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                <div style={{ fontSize: '14px', color: '#6b7280' }}>Генерация QR-кода...</div>
+              </div>
+            ) : error ? (
+              <div className="error-text" style={{ padding: '16px', textAlign: 'center' }}>{error}</div>
+            ) : qrData?.qr_image ? (
+              <>
+                <img
+                  src={qrData.qr_image}
+                  alt="QR Code"
+                  style={{
+                    width: '200px',
+                    height: '200px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    background: 'white'
+                  }}
+                />
+                <div style={{ textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
+                  {qrData.expires_at && (
+                    <>
+                      <div>{formatExpiresAt(qrData.expires_at)}</div>
+                      <div style={{ color: getTimeUntilExpiry(qrData.expires_at).includes('истек') ? '#ef4444' : '#6b7280', marginTop: '4px' }}>
+                        {getTimeUntilExpiry(qrData.expires_at)}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            ) : null}
+          </div>
 
           {/* Ссылка для присоединения */}
           {qrData?.join_url && (
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" gutterBottom>
-                Ссылка для присоединения:
-              </Typography>
-              <Box display="flex" gap={1}>
-                <TextField
-                  fullWidth
-                  size="small"
+            <div className="form-row">
+              <label className="form-label">Ссылка для присоединения:</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  className="form-input"
                   value={removeApiFromUrl(qrData.join_url)}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
+                  readOnly
+                  style={{ flex: 1 }}
                 />
-                <Tooltip title={copied ? "Скопировано!" : "Копировать ссылку"}>
-                  <IconButton onClick={handleCopyLink} color={copied ? "success" : "default"}>
-                    <CopyIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Grid>
+                <button
+                  type="button"
+                  className="btn btn-outlined"
+                  onClick={handleCopyLink}
+                  style={{ padding: '8px 16px', whiteSpace: 'nowrap' }}
+                >
+                  {copied ? 'Скопировано!' : 'Копировать'}
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Информация о токене */}
           {qrData?.token && (
-            <Grid item xs={12}>
-              <Alert severity="info">
-                <Typography variant="body2">
-                  Токен приглашения: {qrData.token}
-                </Typography>
-              </Alert>
-            </Grid>
+            <div className="form-section" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', padding: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '18px' }}>ℹ</span>
+                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Токен приглашения:</h4>
+              </div>
+              <div style={{ fontSize: '13px', wordBreak: 'break-all', color: '#374151' }}>
+                {qrData.token}
+              </div>
+            </div>
           )}
 
           {/* Инструкция */}
-          <Grid item xs={12}>
-            <Alert severity="info">
-              <Typography variant="body2">
-                Отсканируйте QR-код или отправьте ссылку для присоединения к организации.
-                Новые участники смогут присоединиться до истечения срока действия.
-              </Typography>
-            </Alert>
-          </Grid>
-        </Grid>
-      </DialogContent>
+          <div className="form-section" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '18px' }}>ℹ</span>
+              <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Инструкция</h4>
+            </div>
+            <div style={{ fontSize: '13px', color: '#374151' }}>
+              Отсканируйте QR-код или отправьте ссылку для присоединения к организации.
+              Новые участники смогут присоединиться до истечения срока действия.
+            </div>
+          </div>
+        </div>
 
-      <DialogActions>
-        <Button onClick={onClose}>
-          Закрыть
-        </Button>
-        {qrData?.qr_image && (
-          <Button
-            startIcon={<DownloadIcon />}
-            onClick={handleDownloadQr}
-            variant="outlined"
+        <div className="dialog-footer">
+          <button
+            type="button"
+            className="btn btn-outlined"
+            onClick={onClose}
           >
-            Скачать QR-код
-          </Button>
-        )}
-      </DialogActions>
-    </Dialog>
+            Закрыть
+          </button>
+          {qrData?.qr_image && (
+            <button
+              type="button"
+              className="btn btn-contained"
+              onClick={handleDownloadQr}
+            >
+              Скачать QR-код
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

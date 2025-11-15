@@ -1,21 +1,7 @@
 // components/CreateWarehouseDialog.jsx
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Checkbox,
-  Typography
-} from '@mui/material';
+import '../css/styles.scss';
+import '../css/Dialogs.scss';
 
 const CreateWarehouseDialog = ({ open, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
@@ -164,240 +150,255 @@ const CreateWarehouseDialog = ({ open, onClose, onCreate }) => {
     return errors[path] || '';
   };
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  const handleContentClick = (e) => {
+    e.stopPropagation();
+  };
+
+  if (!open) return null;
+
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="md"
-      fullWidth
-    >
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>
-          Создать новый склад
-        </DialogTitle>
+    <div className="dialog-overlay active" onClick={handleOverlayClick}>
+      <div className="dialog-content create-organization-dialog" onClick={handleContentClick}>
+        <div className="dialog-header">
+          <h2>Создать новый склад</h2>
+          <button className="dialog-close" onClick={handleClose}>×</button>
+        </div>
 
-        <DialogContent>
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-
+        <form onSubmit={handleSubmit} className="dialog-form">
+          <div className="form-grid">
             {/* Основная информация */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Основная информация
-              </Typography>
-            </Grid>
+            <div className="form-section">
+              <h4>Основная информация</h4>
+              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-row">
+                  <label className="form-label">Название склада *</label>
+                  <input
+                    type="text"
+                    className={`form-input ${getError('name') ? 'error' : ''}`}
+                    value={formData.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    placeholder="Минимум 3 символа"
+                    required
+                    minLength={3}
+                    maxLength={100}
+                    disabled={loading}
+                  />
+                  {getError('name') && <div className="error-text">{getError('name')}</div>}
+                  {!getError('name') && <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>Минимум 3 символа</div>}
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Название склада *"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                error={!!getError('name')}
-                helperText={getError('name') || 'Минимум 3 символа'}
-                required
-                inputProps={{
-                  minLength: 3,
-                  maxLength: 100
-                }}
-              />
-            </Grid>
+                <div className="form-row">
+                  <label className="form-label">Код склада *</label>
+                  <input
+                    type="text"
+                    className={`form-input ${getError('code') ? 'error' : ''}`}
+                    value={formData.code}
+                    onChange={(e) => handleChange('code', e.target.value)}
+                    placeholder="Минимум 3 символа"
+                    required
+                    minLength={3}
+                    maxLength={50}
+                    disabled={loading}
+                  />
+                  {getError('code') && <div className="error-text">{getError('code')}</div>}
+                  {!getError('code') && <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>Минимум 3 символа</div>}
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Код склада *"
-                value={formData.code}
-                onChange={(e) => handleChange('code', e.target.value)}
-                error={!!getError('code')}
-                helperText={getError('code') || 'Минимум 3 символа'}
-                required
-                inputProps={{
-                  minLength: 3,
-                  maxLength: 50
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Тип склада</InputLabel>
-                <Select
-                  value={formData.type}
-                  label="Тип склада"
-                  onChange={(e) => handleChange('type', e.target.value)}
-                >
-                  <MenuItem value="MAIN">Основной</MenuItem>
-                  <MenuItem value="RESERVE">Резервный</MenuItem>
-                  <MenuItem value="RETAIL">Розничный</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
+                <div className="form-row">
+                  <label className="form-label">Тип склада</label>
+                  <select
+                    className="form-select"
+                    value={formData.type}
+                    onChange={(e) => handleChange('type', e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="MAIN">Основной</option>
+                    <option value="RESERVE">Резервный</option>
+                    <option value="RETAIL">Розничный</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
             {/* Адрес */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-                Адрес
-              </Typography>
-            </Grid>
+            <div className="form-section">
+              <h4>Адрес</h4>
+              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-row">
+                  <label className="form-label">Страна</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.address.country}
+                    onChange={(e) => handleChange('address.country', e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Страна"
-                value={formData.address.country}
-                onChange={(e) => handleChange('address.country', e.target.value)}
-              />
-            </Grid>
+                <div className="form-row">
+                  <label className="form-label">Город *</label>
+                  <input
+                    type="text"
+                    className={`form-input ${getError('address.city') ? 'error' : ''}`}
+                    value={formData.address.city}
+                    onChange={(e) => handleChange('address.city', e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                  {getError('address.city') && <div className="error-text">{getError('address.city')}</div>}
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Город *"
-                value={formData.address.city}
-                onChange={(e) => handleChange('address.city', e.target.value)}
-                error={!!getError('address.city')}
-                helperText={getError('address.city')}
-                required
-              />
-            </Grid>
+                <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label">Улица, дом *</label>
+                  <input
+                    type="text"
+                    className={`form-input ${getError('address.street') ? 'error' : ''}`}
+                    value={formData.address.street}
+                    onChange={(e) => handleChange('address.street', e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                  {getError('address.street') && <div className="error-text">{getError('address.street')}</div>}
+                </div>
 
-            <Grid item xs={12} md={8}>
-              <TextField
-                fullWidth
-                label="Улица, дом *"
-                value={formData.address.street}
-                onChange={(e) => handleChange('address.street', e.target.value)}
-                error={!!getError('address.street')}
-                helperText={getError('address.street')}
-                required
-              />
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <TextField
-                fullWidth
-                label="Почтовый индекс"
-                value={formData.address.postalCode}
-                onChange={(e) => handleChange('address.postalCode', e.target.value)}
-              />
-            </Grid>
+                <div className="form-row">
+                  <label className="form-label">Почтовый индекс</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.address.postalCode}
+                    onChange={(e) => handleChange('address.postalCode', e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+            </div>
 
             {/* Контактное лицо */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-                Контактное лицо
-              </Typography>
-            </Grid>
+            <div className="form-section">
+              <h4>Контактное лицо</h4>
+              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-row">
+                  <label className="form-label">Имя контактного лица</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={formData.contact_person.name}
+                    onChange={(e) => handleChange('contact_person.name', e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Имя контактного лица"
-                value={formData.contact_person.name}
-                onChange={(e) => handleChange('contact_person.name', e.target.value)}
-              />
-            </Grid>
+                <div className="form-row">
+                  <label className="form-label">Телефон</label>
+                  <input
+                    type="tel"
+                    className={`form-input ${getError('contact_person.phone') ? 'error' : ''}`}
+                    value={formData.contact_person.phone}
+                    onChange={(e) => handleChange('contact_person.phone', e.target.value)}
+                    placeholder="+79123456789"
+                    disabled={loading}
+                  />
+                  {getError('contact_person.phone') && <div className="error-text">{getError('contact_person.phone')}</div>}
+                  {!getError('contact_person.phone') && <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>Формат: +79123456789</div>}
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Телефон"
-                value={formData.contact_person.phone}
-                onChange={(e) => handleChange('contact_person.phone', e.target.value)}
-                error={!!getError('contact_person.phone')}
-                helperText={getError('contact_person.phone') || 'Формат: +79123456789'}
-                placeholder="+79123456789"
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Email"
-                type="email"
-                value={formData.contact_person.email}
-                onChange={(e) => handleChange('contact_person.email', e.target.value)}
-                error={!!getError('contact_person.email')}
-                helperText={getError('contact_person.email') || 'example@domain.com'}
-                placeholder="example@domain.com"
-              />
-            </Grid>
+                <div className="form-row" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className={`form-input ${getError('contact_person.email') ? 'error' : ''}`}
+                    value={formData.contact_person.email}
+                    onChange={(e) => handleChange('contact_person.email', e.target.value)}
+                    placeholder="example@domain.com"
+                    disabled={loading}
+                  />
+                  {getError('contact_person.email') && <div className="error-text">{getError('contact_person.email')}</div>}
+                  {!getError('contact_person.email') && <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>example@domain.com</div>}
+                </div>
+              </div>
+            </div>
 
             {/* Настройки */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-                Настройки склада
-              </Typography>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
+            <div className="form-section">
+              <h4>Настройки склада</h4>
+              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-row form-checkbox">
+                  <input
+                    type="checkbox"
+                    id="allowNegativeStock"
                     checked={formData.settings.allowNegativeStock}
                     onChange={(e) => handleChange('settings.allowNegativeStock', e.target.checked)}
+                    disabled={loading}
                   />
-                }
-                label="Разрешить отрицательный остаток"
-              />
-            </Grid>
+                  <label htmlFor="allowNegativeStock" className="form-label-checkbox">Разрешить отрицательный остаток</label>
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
+                <div className="form-row form-checkbox">
+                  <input
+                    type="checkbox"
+                    id="requireApproval"
                     checked={formData.settings.requireApproval}
                     onChange={(e) => handleChange('settings.requireApproval', e.target.checked)}
+                    disabled={loading}
                   />
-                }
-                label="Требовать подтверждение операций"
-              />
-            </Grid>
+                  <label htmlFor="requireApproval" className="form-label-checkbox">Требовать подтверждение операций</label>
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Checkbox
+                <div className="form-row form-checkbox">
+                  <input
+                    type="checkbox"
+                    id="autoPrintLabels"
                     checked={formData.settings.autoPrintLabels}
                     onChange={(e) => handleChange('settings.autoPrintLabels', e.target.checked)}
+                    disabled={loading}
                   />
-                }
-                label="Автопечать этикеток"
-              />
-            </Grid>
+                  <label htmlFor="autoPrintLabels" className="form-label-checkbox">Автопечать этикеток</label>
+                </div>
 
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Тип штрих-кода</InputLabel>
-                <Select
-                  value={formData.settings.barcodeType}
-                  label="Тип штрих-кода"
-                  onChange={(e) => handleChange('settings.barcodeType', e.target.value)}
-                >
-                  <MenuItem value="EAN13">EAN-13</MenuItem>
-                  <MenuItem value="CODE128">CODE-128</MenuItem>
-                  <MenuItem value="QR">QR Code</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
+                <div className="form-row">
+                  <label className="form-label">Тип штрих-кода</label>
+                  <select
+                    className="form-select"
+                    value={formData.settings.barcodeType}
+                    onChange={(e) => handleChange('settings.barcodeType', e.target.value)}
+                    disabled={loading}
+                  >
+                    <option value="EAN13">EAN-13</option>
+                    <option value="CODE128">CODE-128</option>
+                    <option value="QR">QR Code</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          </Grid>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleClose} disabled={loading}>
-            Отмена
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading}
-          >
-            {loading ? 'Создание...' : 'Создать склад'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
+          <div className="dialog-footer">
+            <button
+              type="button"
+              className="btn btn-outlined"
+              onClick={handleClose}
+              disabled={loading}
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              className="btn btn-contained"
+              disabled={loading}
+            >
+              {loading ? 'Создание...' : 'Создать склад'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

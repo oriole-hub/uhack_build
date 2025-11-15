@@ -72,22 +72,29 @@ const CreateInvitationDialog = ({ open, onClose, organizationId, onSuccess }) =>
     }
   };
 
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleContentClick = (e) => {
+    e.stopPropagation();
+  };
+
   if (!open) return null;
 
   return (
-    <div className={`dialog-overlay ${open ? 'active' : ''}`} onClick={onClose}>
-      <div 
-        className={`dialog-content create-invitation-dialog ${isDark ? 'dark-mode' : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="dialog-overlay active" onClick={handleOverlayClick}>
+      <div className={`dialog-content create-organization-dialog ${isDark ? 'dark-mode' : ''}`} onClick={handleContentClick}>
         <div className="dialog-header">
-          <h2 className="dialog-title">Создать приглашение</h2>
+          <h2>Создать приглашение</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
 
-        <div className="dialog-body">
-          <form onSubmit={handleSendInvitation}>
-            <div className="form-group">
+        <form onSubmit={handleSendInvitation} className="dialog-form">
+          <div className="form-grid">
+            <div className="form-row">
               <label className="form-label">Email *</label>
               <input
                 type="email"
@@ -99,7 +106,7 @@ const CreateInvitationDialog = ({ open, onClose, organizationId, onSuccess }) =>
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-row">
               <label className="form-label">ФИО *</label>
               <input
                 type="text"
@@ -111,7 +118,7 @@ const CreateInvitationDialog = ({ open, onClose, organizationId, onSuccess }) =>
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-row">
               <label className="form-label">Телефон</label>
               <input
                 type="tel"
@@ -120,10 +127,10 @@ const CreateInvitationDialog = ({ open, onClose, organizationId, onSuccess }) =>
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+7 (999) 123-45-67"
               />
-              <small className="form-hint">Необязательное поле</small>
+              <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>Необязательное поле</div>
             </div>
 
-            <div className="form-group">
+            <div className="form-row">
               <label className="form-label">Роль</label>
               <select
                 className="form-select"
@@ -135,26 +142,26 @@ const CreateInvitationDialog = ({ open, onClose, organizationId, onSuccess }) =>
               </select>
             </div>
 
-            {error && <div className="form-error">{error}</div>}
+            {error && <div className="error-text" style={{ gridColumn: '1 / -1' }}>{error}</div>}
+          </div>
 
-            <div className="dialog-actions">
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={onClose}
-              >
-                Отмена
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={sending || !email.trim() || !fullName.trim()}
-              >
-                {sending ? 'Отправка...' : 'Отправить приглашение'}
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="dialog-footer">
+            <button
+              type="button"
+              className="btn btn-outlined"
+              onClick={onClose}
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              className="btn btn-contained"
+              disabled={sending || !email.trim() || !fullName.trim()}
+            >
+              {sending ? 'Отправка...' : 'Отправить приглашение'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import { useTheme } from '../theme/ThemeContext';
 import CreateOrganizationDialog from '../components/dialogs/CreateOrganizationDialog';
 import { apiService } from '../services/api';
 import DashboardSkeleton from '../components/common/DashboardSkeleton';
-import Icon from '../components/common/Icon';
 import '../components/css/styles.scss';
 import './Dashboard.scss';
 
@@ -123,12 +122,52 @@ const Dashboard = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    // Пытаемся найти scrollable контейнер
-    const contentWrapper = document.querySelector('.dashboard-content-wrapper');
-    if (contentWrapper) {
-      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Находим все возможные scrollable контейнеры
+    const selectors = [
+      '.dashboard-content-wrapper',
+      '.dashboard-page',
+      'main',
+      '#root',
+      'body',
+      'html'
+    ];
+    
+    // Прокручиваем все найденные контейнеры
+    selectors.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        try {
+          // Проверяем, является ли элемент scrollable
+          const isScrollable = element.scrollHeight > element.clientHeight;
+          if (isScrollable || selector === 'html' || selector === 'body') {
+            element.scrollTo({ top: 0, behavior: 'smooth' });
+            // Также устанавливаем scrollTop напрямую для надежности
+            if (element.scrollTop !== undefined) {
+              element.scrollTop = 0;
+            }
+          }
+        } catch (e) {
+          // Если scrollTo не поддерживается, используем scrollTop
+          if (element.scrollTop !== undefined) {
+            element.scrollTop = 0;
+          }
+        }
+      }
+    });
+    
+    // Прокручиваем window
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    
+    // Также прокручиваем document.documentElement
+    try {
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+    } catch (e) {
+      document.documentElement.scrollTop = 0;
     }
   };
 
@@ -213,7 +252,7 @@ const Dashboard = () => {
                 title="Входящие приглашения"
                 style={{ display: 'flex', alignItems: 'center', padding: '8px 16px', fontSize: '14px', height: '36px' }}
               >
-                <Icon name="add_icon" size="small" useTheme={true} style={{ marginRight: '8px' }} />
+
                 Приглашения
               </button>
               <button 
@@ -222,7 +261,11 @@ const Dashboard = () => {
                 title="Выйти из системы"
                 style={{ display: 'flex', alignItems: 'center', padding: '8px 16px', fontSize: '14px', height: '36px' }}
               >
-                <Icon name="exit_button" size="small" useTheme={true} style={{ marginRight: '8px' }} />
+                <img 
+                  src={`/assets/icons/exit_button_${isDark ? 'white' : 'black'}.svg`}
+                  alt="Выйти"
+                  style={{ width: '24px', height: '24px', marginRight: '8px', objectFit: 'contain' }}
+                />
                 ВЫЙТИ
               </button>
             </div>
@@ -300,7 +343,11 @@ const Dashboard = () => {
                               onClick={(e) => handleDeleteOrganization(e, org.id)}
                               title="Удалить организацию"
                             >
-                              <Icon name="delete_button" size="small" useTheme={true} />
+                              <img 
+                                src={`/assets/icons/delete_button_${isDark ? 'white' : 'black'}.svg`}
+                                alt="Удалить"
+                                style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                              />
                             </button>
                           </div>
                         </div>

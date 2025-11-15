@@ -15,7 +15,6 @@ import {
   IconButton
 } from '@mui/material';
 import { PersonAdd as PersonAddIcon } from '@mui/icons-material';
-import Icon from '../../common/Icon';
 import { useTheme } from '../../../theme/ThemeContext';
 
 import '../../css/styles.scss';
@@ -44,13 +43,18 @@ const MembersTab = ({ members, onInvite, onRemove, onEdit }) => {
     return '?';
   };
 
-  // Функция для форматирования даты (если нет joinedAt, используем текущую дату как пример)
+  // Функция для форматирования даты (используем joined_at из API /api/orga/me)
   const formatDate = (member) => {
-    // Если в данных нет даты присоединения, можно использовать текущую дату
-    // или оставить placeholder
-    return member.joinedAt 
-      ? new Date(member.joinedAt).toLocaleDateString('ru-RU')
-      : 'Не указана';
+    // Используем joined_at из API /api/orga/me
+    const joinedDate = member.joined_at || member.joinedAt;
+    if (joinedDate) {
+      const date = new Date(joinedDate);
+      // Проверяем, что дата валидна
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('ru-RU');
+      }
+    }
+    return 'Не указана';
   };
 
   return (
@@ -100,25 +104,18 @@ const MembersTab = ({ members, onInvite, onRemove, onEdit }) => {
                 <TableCell>
                   {formatDate(member)}
                 </TableCell>
-                <TableCell align="right" sx={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => {
-                      if (onEdit) {
-                        onEdit(member);
-                      } else {
-                        setEditingMember(member);
-                      }
-                    }}
-                  >
-                    <Icon name="change_button" size="small" useTheme={true} />
-                  </IconButton>
+                
+
                   <IconButton 
                     size="small" 
                     disabled={member.role === 'OWNER'} 
                     onClick={() => onRemove(member.id)}
                   >
-                    <Icon name="delete_button" size="small" useTheme={true} />
+                    <img 
+                      src={`/assets/icons/delete_button_${isDark ? 'white' : 'black'}.svg`}
+                      alt="Удалить"
+                      style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                    />
                   </IconButton>
                 </TableCell>
               </TableRow>

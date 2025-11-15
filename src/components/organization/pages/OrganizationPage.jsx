@@ -14,7 +14,6 @@ import CreateInvitationDialog from '../../dialogs/CreateInvitationDialog';
 import QrCodeDialog from '../../dialogs/QrCodeDialog';
 import InventoryReportDialog from '../../dialogs/InventoryReportDialog';
 import OrganizationPageSkeleton from '../../common/OrganizationPageSkeleton';
-import Icon from '../../common/Icon';
 import { Button } from '@mui/material';
 import { Inventory as InventoryIcon } from '@mui/icons-material';
 import './OrganizationPage.scss';
@@ -137,24 +136,69 @@ const OrganizationPage = () => {
 
   /** Форматирует дату вступления участника */
   const formatMemberDate = (member) => {
-    if (member.joinedAt) {
-      const date = new Date(member.joinedAt);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = String(date.getFullYear()).slice(-2);
-      return `${day}.${month}.${year}`;
+    // Используем joined_at из API /api/orga/me
+    const joinedDate = member.joined_at || member.joinedAt;
+    if (joinedDate) {
+      const date = new Date(joinedDate);
+      // Проверяем, что дата валидна
+      if (!isNaN(date.getTime())) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        return `${day}.${month}.${year}`;
+      }
     }
     return 'Не указана';
   };
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    // Пытаемся найти scrollable контейнер
-    const contentWrapper = document.querySelector('.organization-content-wrapper');
-    if (contentWrapper) {
-      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Находим все возможные scrollable контейнеры
+    const selectors = [
+      '.organization-content-wrapper',
+      '.organization-page',
+      'main',
+      '#root',
+      'body',
+      'html'
+    ];
+    
+    // Прокручиваем все найденные контейнеры
+    selectors.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        try {
+          // Проверяем, является ли элемент scrollable
+          const isScrollable = element.scrollHeight > element.clientHeight;
+          if (isScrollable || selector === 'html' || selector === 'body') {
+            element.scrollTo({ top: 0, behavior: 'smooth' });
+            // Также устанавливаем scrollTop напрямую для надежности
+            if (element.scrollTop !== undefined) {
+              element.scrollTop = 0;
+            }
+          }
+        } catch (e) {
+          // Если scrollTo не поддерживается, используем scrollTop
+          if (element.scrollTop !== undefined) {
+            element.scrollTop = 0;
+          }
+        }
+      }
+    });
+    
+    // Прокручиваем window
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    
+    // Также прокручиваем document.documentElement
+    try {
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+    } catch (e) {
+      document.documentElement.scrollTop = 0;
     }
   };
 
@@ -293,7 +337,6 @@ const OrganizationPage = () => {
           {user && (
             <>
               <span className="user-name">
-                <Icon name="add_user_icon" size="small" useTheme={true} style={{ marginRight: '8px' }} />
                 {user.name || user.email}
               </span>
               {user.role && (
@@ -330,24 +373,24 @@ const OrganizationPage = () => {
         </div>
         
         <div className="section-content">
-          <div className="info-card">
-            <table className="info-table">
+          <div className="info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            <table className="info-table" style={{ width: '100%' }}>
               <thead>
                 <tr>
-                  <th>Юридическое название</th>
-                  <th>ИНН</th>
-                  <th>КПП</th>
-                  <th>Адрес</th>
-                  <th>Участников</th>
+                  <th style={{ textAlign: 'center' }}>Юридическое название</th>
+                  <th style={{ textAlign: 'center' }}>ИНН</th>
+                  <th style={{ textAlign: 'center' }}>КПП</th>
+                  <th style={{ textAlign: 'center' }}>Адрес</th>
+                  <th style={{ textAlign: 'center' }}>Участников</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>{getValidOrgName(organization)}</td>
-                  <td>{organization.inn || 'Не указан'}</td>
-                  <td>{organization.kpp || organization.settings?.kpp || 'Не указан'}</td>
-                  <td>{formatAddress(organization.address)}</td>
-                  <td>{
+                  <td style={{ textAlign: 'center' }}>{getValidOrgName(organization)}</td>
+                  <td style={{ textAlign: 'center' }}>{organization.inn || 'Не указан'}</td>
+                  <td style={{ textAlign: 'center' }}>{organization.kpp || organization.settings?.kpp || 'Не указан'}</td>
+                  <td style={{ textAlign: 'center' }}>{formatAddress(organization.address)}</td>
+                  <td style={{ textAlign: 'center' }}>{
                     (organization.members_count !== undefined && organization.members_count !== null) 
                       ? organization.members_count 
                       : (members && Array.isArray(members) && members.length > 0)
@@ -362,7 +405,7 @@ const OrganizationPage = () => {
               </tbody>
             </table>
             
-            <div className="card-actions">
+            <div className="card-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center', width: '100%' }}>
               <button
                 className="btn btn-action btn-add-warehouse"
                 onClick={() => setWarehouseDialogOpen(true)}
@@ -378,9 +421,24 @@ const OrganizationPage = () => {
                   height: '40px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.transform = 'translateY(0)';
                 }}
               >
+                <img 
+                  src={`/assets/icons/add_icon_${isDark ? 'white' : 'black'}.svg`}
+                  alt="Добавить склад"
+                  style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                />
                 Добавить склад
               </button>
               <button
@@ -399,27 +457,132 @@ const OrganizationPage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.transform = 'translateY(0)';
                 }}
               >
-                <Icon name="add_user_icon" size="small" useTheme={true} />
+                <img 
+                  src={`/assets/icons/add_user_icon_${isDark ? 'white' : 'black'}.svg`}
+                  alt="Добавить участника"
+                  style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                />
                 Добавить участника
               </button>
               <button
                 className="btn btn-action btn-add-member"
                 onClick={() => setCreateInvitationDialogOpen(true)}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.transform = 'translateY(0)';
+                }}
               >
-                <Icon name="add_icon" size="small" useTheme={true} />
+                <img 
+                  src={`/assets/icons/add_icon_${isDark ? 'white' : 'black'}.svg`}
+                  alt="Создать приглашение"
+                  style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                />
                 Создать приглашение
               </button>
-              <div className="action-icons">
-                <button className="icon-btn" title="QR-код" onClick={() => setQrDialogOpen(true)}>
-                  <Icon name="qr-code_button_all_theme" size="small" />
-                </button>
-                <button className="icon-btn" title="Настройки" onClick={() => setEditDialogOpen(true)}>
-                  <Icon name="settings_button" size="small" useTheme={true} />
-                </button>
-              </div>
+              <button
+                className="btn btn-action"
+                title="QR-код"
+                onClick={() => setQrDialogOpen(true)}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
+                <img 
+                  src="/assets/icons/qr-code_button_all_theme.svg"
+                  alt="QR-код"
+                  style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                />
+                QR-код
+              </button>
+              <button
+                className="btn btn-action"
+                title="Настройки"
+                onClick={() => setEditDialogOpen(true)}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#059669';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#10b981';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
+                <img 
+                  src={`/assets/icons/settings_button_${isDark ? 'white' : 'black'}.svg`}
+                  alt="Настройки"
+                  style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                />
+                Настройки
+              </button>
             </div>
           </div>
         </div>
@@ -429,20 +592,13 @@ const OrganizationPage = () => {
       <div className="organization-statistics">
         <h2 className="statistics-title">Общая статистика</h2>
         <div className="statistics-cards">
-          <div className="stat-card stat-card-sold">
-            <div className="stat-icon">
-              <Icon name="add_icon" size="large" useTheme={true} />
-            </div>
-            <div className="stat-content">
-              <div className="stat-label">Продано товаров</div>
-              <div className="stat-value">
-                {statisticsLoading ? '...' : statistics.totalSold.toLocaleString('ru-RU')}
-              </div>
-            </div>
-          </div>
           <div className="stat-card stat-card-stock">
             <div className="stat-icon">
-              <Icon name="settings_button" size="large" useTheme={true} />
+              <img 
+                src={`/assets/icons/settings_button_${isDark ? 'white' : 'black'}.svg`}
+                alt="На складе"
+                style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+              />
             </div>
             <div className="stat-content">
               <div className="stat-label">На всех складах</div>
@@ -453,7 +609,11 @@ const OrganizationPage = () => {
           </div>
           <div className="stat-card stat-card-items">
             <div className="stat-icon">
-              <Icon name="add_user_icon" size="large" useTheme={true} />
+              <img 
+                src={`/assets/icons/add_user_icon_${isDark ? 'white' : 'black'}.svg`}
+                alt="Позиций"
+                style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+              />
             </div>
             <div className="stat-content">
               <div className="stat-label">Всего позиций</div>
@@ -511,7 +671,11 @@ const OrganizationPage = () => {
                           onClick={() => handleDeleteWarehouse(warehouse.id)}
                           title="Удалить"
                         >
-                          <Icon name="delete_button" size="small" useTheme={true} />
+                          <img 
+                            src={`/assets/icons/delete_button_${isDark ? 'white' : 'black'}.svg`}
+                            alt="Удалить"
+                            style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+                          />
                         </button>
                       </div>
                     </div>
@@ -520,13 +684,6 @@ const OrganizationPage = () => {
                       <p><strong>Контактный номер:</strong> {warehouse.contact_person?.phone || warehouse.contact_phone || 'Не указан'}</p>
                       <p><strong>Адрес:</strong> {formatAddress(warehouse.address)}</p>
                     </div>
-                    <button 
-                      className="warehouse-edit-icon"
-                      onClick={() => handleEditWarehouseClick(warehouse)}
-                      title="Редактировать"
-                    >
-                      <Icon name="change_button" size="small" useTheme={true} />
-                    </button>
                   </div>
                   );
                 })}
@@ -559,38 +716,64 @@ const OrganizationPage = () => {
         
         {showMembers && (
           <div className="section-content">
-            <div className="info-card">
-              <table className="info-table">
+            <div className="info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+              <table className="info-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
-                    <th>Пользователь</th>
-                    <th>Роль</th>
-                    <th>Дата вступления</th>
-                    <th>Действия</th>
+                    <th style={{ textAlign: 'center' }}>Пользователь</th>
+                    <th style={{ textAlign: 'center' }}>Роль</th>
+                    <th style={{ textAlign: 'center' }}>Дата вступления</th>
+                    <th style={{ textAlign: 'center' }}>Действия</th>
                   </tr>
                 </thead>
                 <tbody>
                   {members && members.length > 0 ? (
                     members.map((member) => (
                       <tr key={member.id}>
-                        <td>{member.fullName || member.email || 'Не указано'}</td>
-                        <td>{member.role || 'USER'}</td>
-                        <td>{formatMemberDate(member)}</td>
-                        <td>
-                          <div className="action-buttons">
-                            <button
-                              className="action-btn edit-btn"
-                              title="Редактировать"
-                            >
-                              <Icon name="change_button" size="small" useTheme={true} />
-                            </button>
+                        <td style={{ textAlign: 'center' }}>{member.fullName || member.email || 'Не указано'}</td>
+                        <td style={{ textAlign: 'center' }}>{member.role || 'USER'}</td>
+                        <td style={{ textAlign: 'center' }}>{formatMemberDate(member)}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <div className="action-buttons" style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
                             <button
                               className="action-btn delete-btn"
                               onClick={() => handleRemoveMember(member.id)}
                               disabled={member.role === 'OWNER'}
                               title="Удалить"
+                              style={{
+                                backgroundColor: member.role === 'OWNER' ? '#ccc' : '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                padding: '6px 12px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: member.role === 'OWNER' ? 'not-allowed' : 'pointer',
+                                opacity: member.role === 'OWNER' ? 0.5 : 1,
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (member.role !== 'OWNER') {
+                                  e.target.style.backgroundColor = '#dc2626';
+                                  e.target.style.transform = 'translateY(-2px)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (member.role !== 'OWNER') {
+                                  e.target.style.backgroundColor = '#ef4444';
+                                  e.target.style.transform = 'translateY(0)';
+                                }
+                              }}
                             >
-                              <Icon name="delete_button" size="small" useTheme={true} />
+                              <img 
+                                src={`/assets/icons/delete_button_white.svg`}
+                                alt="Удалить"
+                                style={{ width: '16px', height: '16px', objectFit: 'contain' }}
+                              />
+                              Удалить
                             </button>
                           </div>
                         </td>
@@ -598,11 +781,11 @@ const OrganizationPage = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: 'center', padding: '40px' }}>
+                      <td colSpan="4" style={{ textAlign: 'center', padding: '40px', color: isDark ? '#9ca3af' : '#6b7280' }}>
                         Нет участников
                       </td>
                     </tr>
-      )}
+                  )}
                 </tbody>
               </table>
             </div>

@@ -8,8 +8,11 @@ const CreateNomenclatureDialog = ({
   warehouse, 
   onClose, 
   onCreate,
+  onUpdate,
+  nomenclature = null,
   prefilledBarcode = null
 }) => {
+  const isEdit = !!nomenclature;
   const [formData, setFormData] = useState({
     name: '',
     article: '',
@@ -26,25 +29,48 @@ const CreateNomenclatureDialog = ({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Сброс формы при открытии/закрытии
+  // Сброс формы при открытии/закрытии или загрузка данных для редактирования
   useEffect(() => {
     if (open) {
-      setFormData({
-        name: '',
-        article: '',
-        barcode: prefilledBarcode || '',
-        quantity: 1,
-        unit: 'pcs',
-        category_id: '',
-        warehouse_id: warehouse?.id || '',
-        properties: {}
-      });
-      setProperties([]);
+      if (isEdit && nomenclature) {
+        // Режим редактирования - загружаем данные номенклатуры
+        setFormData({
+          name: nomenclature.name || '',
+          article: nomenclature.article || '',
+          barcode: nomenclature.barcode || '',
+          quantity: nomenclature.quantity || 1,
+          unit: nomenclature.unit || 'pcs',
+          category_id: nomenclature.category_id || '',
+          warehouse_id: nomenclature.warehouse_id || warehouse?.id || '',
+          properties: nomenclature.properties || {}
+        });
+        // Преобразуем объект properties в массив
+        const propsArray = [];
+        if (nomenclature.properties && typeof nomenclature.properties === 'object') {
+          Object.entries(nomenclature.properties).forEach(([key, value]) => {
+            propsArray.push({ key, value });
+          });
+        }
+        setProperties(propsArray);
+      } else {
+        // Режим создания - сбрасываем форму
+        setFormData({
+          name: '',
+          article: '',
+          barcode: prefilledBarcode || '',
+          quantity: 1,
+          unit: 'pcs',
+          category_id: '',
+          warehouse_id: warehouse?.id || '',
+          properties: {}
+        });
+        setProperties([]);
+      }
       setNewPropertyKey('');
       setNewPropertyValue('');
       setErrors({});
     }
-  }, [open, prefilledBarcode, warehouse]);
+  }, [open, prefilledBarcode, warehouse, nomenclature, isEdit]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -147,10 +173,16 @@ const CreateNomenclatureDialog = ({
 
     setLoading(true);
     try {
-      await onCreate(nomenclatureData);
+      if (isEdit && nomenclature) {
+        // Режим редактирования
+        await onUpdate(nomenclature.id, nomenclatureData);
+      } else {
+        // Режим создания
+        await onCreate(nomenclatureData);
+      }
       onClose();
     } catch (error) {
-      console.error('Ошибка создания номенклатуры:', error);
+      console.error(`Ошибка ${isEdit ? 'обновления' : 'создания'} номенклатуры:`, error);
     } finally {
       setLoading(false);
     }
@@ -166,8 +198,6 @@ const CreateNomenclatureDialog = ({
     { value: 'box', label: 'Коробки' }
   ];
 
-  if (!open) return null;
-
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -178,245 +208,232 @@ const CreateNomenclatureDialog = ({
     e.stopPropagation();
   };
 
+  if (!open) return null;
+
   return (
-    <div className={`dialog-overlay ${open ? 'active' : ''}`} onClick={handleOverlayClick}>
-      <div className="dialog-content" onClick={handleContentClick}>
+    <div className="dialog-overlay active" onClick={handleOverlayClick}>
+      <div className="dialog-content create-organization-dialog" onClick={handleContentClick}>
         <div className="dialog-header">
-          <h2>Создать номенклатуру</h2>
-          {warehouse && (
-            <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#666' }}>
-              Склад: <strong>{warehouse.name}</strong>
-            </p>
-          )}
-          {prefilledBarcode && (
-            <p style={{ 
-              margin: '8px 0 0 0', 
-              padding: '8px 12px', 
-              background: '#e3f2fd', 
-              borderRadius: '4px',
-              color: '#1976d2',
-              fontSize: '13px'
-            }}>
-              📷 Отсканированный штрихкод: <strong>{prefilledBarcode}</strong>
-            </p>
-          )}
+          <div>
+            <h2>{isEdit ? 'Редактировать номенклатуру' : 'Создать номенклатуру'}</h2>
+            {warehouse && (
+              <div style={{ marginTop: '4px', fontSize: '14px', opacity: 0.9 }}>
+                Склад: <strong>{warehouse.name}</strong>
+              </div>
+            )}
+            {prefilledBarcode && (
+              <div style={{ 
+                marginTop: '8px', 
+                padding: '8px 12px', 
+                background: 'rgba(59, 130, 246, 0.1)', 
+                borderRadius: '6px',
+                fontSize: '13px'
+              }}>
+                📷 Отсканированный штрихкод: <strong>{prefilledBarcode}</strong>
+              </div>
+            )}
+          </div>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="dialog-form">
-          <div className="form-section">
-            <h3>Основная информация</h3>
-            
-            <div className="form-group">
-              <label htmlFor="name">Название товара *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Например: Молоко Простоквашино 3.2%"
-                className={errors.name ? 'error' : ''}
-                disabled={loading}
-                required
-              />
-              {errors.name && <span className="error-message">{errors.name}</span>}
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="article">Артикул *</label>
+          <div className="form-grid">
+            <div className="form-section">
+              <h4>Основная информация</h4>
+              
+              <div className="form-row">
+                <label className="form-label">Название товара *</label>
                 <input
                   type="text"
-                  id="article"
-                  name="article"
-                  value={formData.article}
+                  name="name"
+                  className={`form-input ${errors.name ? 'error' : ''}`}
+                  value={formData.name}
                   onChange={handleChange}
-                  placeholder="Например: MLK-001"
-                  className={errors.article ? 'error' : ''}
+                  placeholder="Например: Молоко Простоквашино 3.2%"
                   disabled={loading}
                   required
                 />
-                {errors.article && <span className="error-message">{errors.article}</span>}
+                {errors.name && <div className="error-text">{errors.name}</div>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="barcode">Штрих-код</label>
+              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-row">
+                  <label className="form-label">Артикул *</label>
+                  <input
+                    type="text"
+                    name="article"
+                    className={`form-input ${errors.article ? 'error' : ''}`}
+                    value={formData.article}
+                    onChange={handleChange}
+                    placeholder="Например: MLK-001"
+                    disabled={loading}
+                    required
+                  />
+                  {errors.article && <div className="error-text">{errors.article}</div>}
+                </div>
+
+                <div className="form-row">
+                  <label className="form-label">Штрих-код</label>
+                  <input
+                    type="text"
+                    name="barcode"
+                    className="form-input"
+                    value={formData.barcode}
+                    onChange={handleChange}
+                    placeholder="Например: 4601234567890"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div className="form-row">
+                  <label className="form-label">Категория</label>
+                  <input
+                    type="text"
+                    name="category_id"
+                    className="form-input"
+                    value={formData.category_id}
+                    onChange={handleChange}
+                    placeholder="Например: Молочные продукты"
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="form-row">
+                  <label className="form-label">Единица измерения *</label>
+                  <select
+                    name="unit"
+                    className="form-select"
+                    value={formData.unit}
+                    onChange={handleChange}
+                    disabled={loading}
+                    required
+                  >
+                    {units.map((unit) => (
+                      <option key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <label className="form-label">Количество *</label>
                 <input
-                  type="text"
-                  id="barcode"
-                  name="barcode"
-                  value={formData.barcode}
+                  type="number"
+                  name="quantity"
+                  className="form-input"
+                  value={formData.quantity}
                   onChange={handleChange}
-                  placeholder="Например: 4601234567890"
+                  min="1"
                   disabled={loading}
+                  required
                 />
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="category_id">Категория</label>
-                <input
-                  type="text"
-                  id="category_id"
-                  name="category_id"
-                  value={formData.category_id}
-                  onChange={handleChange}
-                  placeholder="Например: Молочные продукты"
-                  disabled={loading}
-                />
+            <div className="form-section">
+              <h4>Характеристики товара</h4>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+                Добавьте дополнительные характеристики в формате ключ-значение
               </div>
 
-              <div className="form-group">
-                <label htmlFor="unit">Единица измерения *</label>
-                <select
-                  id="unit"
-                  name="unit"
-                  value={formData.unit}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                >
-                  {units.map((unit) => (
-                    <option key={unit.value} value={unit.value}>
-                      {unit.label}
-                    </option>
+              {/* Список добавленных характеристик */}
+              {properties.length > 0 && (
+                <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {properties.map((prop, index) => (
+                    <div key={index} style={{ 
+                      display: 'flex', 
+                      gap: '8px', 
+                      alignItems: 'center'
+                    }}>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={prop.key}
+                        onChange={(e) => handlePropertyKeyChange(index, e.target.value)}
+                        placeholder="Ключ"
+                        style={{ flex: 1 }}
+                        disabled={loading}
+                      />
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={prop.value}
+                        onChange={(e) => handlePropertyValueChange(index, e.target.value)}
+                        placeholder="Значение"
+                        style={{ flex: 1 }}
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveProperty(index)}
+                        disabled={loading}
+                        className="btn btn-outlined"
+                        style={{ padding: '8px 16px', whiteSpace: 'nowrap' }}
+                      >
+                        Удалить
+                      </button>
+                    </div>
                   ))}
-                </select>
-              </div>
-            </div>
+                </div>
+              )}
 
-            <div className="form-group">
-              <label htmlFor="quantity">Количество *</label>
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                min="1"
-                disabled={loading}
-                required
-              />
+              {/* Форма добавления новой характеристики */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '8px', 
+                alignItems: 'center'
+              }}>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newPropertyKey}
+                  onChange={(e) => setNewPropertyKey(e.target.value)}
+                  placeholder="Ключ (например: Бренд)"
+                  style={{ flex: 1 }}
+                  disabled={loading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddProperty();
+                    }
+                  }}
+                />
+                <input
+                  type="text"
+                  className="form-input"
+                  value={newPropertyValue}
+                  onChange={(e) => setNewPropertyValue(e.target.value)}
+                  placeholder="Значение (например: Простоквашино)"
+                  style={{ flex: 1 }}
+                  disabled={loading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddProperty();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddProperty}
+                  disabled={loading || !newPropertyKey.trim() || !newPropertyValue.trim()}
+                  className="btn btn-contained"
+                  style={{ padding: '8px 16px', whiteSpace: 'nowrap' }}
+                >
+                  Добавить
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="form-section">
-            <h3>Характеристики товара</h3>
-            <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-              Добавьте дополнительные характеристики в формате ключ-значение
-            </p>
-
-            {/* Список добавленных характеристик */}
-            {properties.length > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                {properties.map((prop, index) => (
-                  <div key={index} style={{ 
-                    display: 'flex', 
-                    gap: '8px', 
-                    marginBottom: '8px',
-                    alignItems: 'center'
-                  }}>
-                    <input
-                      type="text"
-                      value={prop.key}
-                      onChange={(e) => handlePropertyKeyChange(index, e.target.value)}
-                      placeholder="Ключ"
-                      style={{ flex: 1 }}
-                      disabled={loading}
-                    />
-                    <input
-                      type="text"
-                      value={prop.value}
-                      onChange={(e) => handlePropertyValueChange(index, e.target.value)}
-                      placeholder="Значение"
-                      style={{ flex: 1 }}
-                      disabled={loading}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveProperty(index)}
-                      disabled={loading}
-                      style={{
-                        padding: '8px 12px',
-                        background: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Форма добавления новой характеристики */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '8px', 
-              alignItems: 'center',
-              padding: '12px',
-              background: '#f8f9fa',
-              borderRadius: '6px',
-              border: '1px solid #e0e0e0'
-            }}>
-              <input
-                type="text"
-                value={newPropertyKey}
-                onChange={(e) => setNewPropertyKey(e.target.value)}
-                placeholder="Ключ (например: Бренд)"
-                style={{ flex: 1, padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px' }}
-                disabled={loading}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddProperty();
-                  }
-                }}
-              />
-              <input
-                type="text"
-                value={newPropertyValue}
-                onChange={(e) => setNewPropertyValue(e.target.value)}
-                placeholder="Значение (например: Простоквашино)"
-                style={{ flex: 1, padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px' }}
-                disabled={loading}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddProperty();
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={handleAddProperty}
-                disabled={loading || !newPropertyKey.trim() || !newPropertyValue.trim()}
-                style={{
-                  padding: '8px 16px',
-                  background: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Добавить
-              </button>
-            </div>
-          </div>
-
-          <div className="dialog-actions">
+          <div className="dialog-footer">
             <button 
               type="button" 
-              className="btn-outline" 
+              className="btn btn-outlined" 
               onClick={onClose}
               disabled={loading}
             >
@@ -424,10 +441,10 @@ const CreateNomenclatureDialog = ({
             </button>
             <button 
               type="submit" 
-              className="btn-contained"
+              className="btn btn-contained"
               disabled={loading || !formData.name.trim() || !formData.article.trim()}
             >
-              {loading ? 'Создание...' : 'Создать номенклатуру'}
+              {loading ? (isEdit ? 'Сохранение...' : 'Создание...') : (isEdit ? 'Сохранить' : 'Создать номенклатуру')}
             </button>
           </div>
         </form>

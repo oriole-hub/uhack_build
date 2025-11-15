@@ -55,6 +55,52 @@
   }
 }
 
+// Вертикальная таблица (каждое поле друг под другом)
+.info-table-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid $border-light;
+  text-align: center;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .dark-mode & {
+    border-bottom-color: #4a4a4a;
+  }
+}
+
+.info-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  font-family: 'Unbounded', sans-serif;
+
+  .dark-mode & {
+    color: #9ca3af;
+  }
+}
+
+.info-value {
+  font-size: 16px;
+  color: $text-primary;
+  font-family: 'Unbounded', sans-serif;
+
+  .dark-mode & {
+    color: #ffffff;
+  }
+}
+
 // Кнопки действий в таблице
 .action-buttons {
   display: flex;

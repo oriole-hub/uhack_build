@@ -53,6 +53,20 @@ export const useOrganizationData = (id, setSnackbar) => {
       setLoading(true);
       setError(null);
 
+      // Сначала получаем данные организации через /orga/me, так как там могут быть участники с joined_at
+      const orgMeData = await apiService.getOrganizations().catch(() => null);
+      let membersFromOrgMe = [];
+      
+      // Ищем участников в данных из /orga/me
+      if (orgMeData && Array.isArray(orgMeData)) {
+        const currentOrg = orgMeData.find(org => org.id === id);
+        if (currentOrg && currentOrg.members && Array.isArray(currentOrg.members)) {
+          membersFromOrgMe = currentOrg.members;
+        }
+      } else if (orgMeData && orgMeData.id === id && orgMeData.members && Array.isArray(orgMeData.members)) {
+        membersFromOrgMe = orgMeData.members;
+      }
+
       const [organizationData, warehousesData, membersData] = await Promise.allSettled([
         apiService.getOrganization(id),
         apiService.getOrganizationWarehouses(id),
@@ -96,9 +110,24 @@ export const useOrganizationData = (id, setSnackbar) => {
         ? warehousesData.value
         : [];
 
-      const membersResult = membersData.status === 'fulfilled'
-        ? membersData.value
-        : [];
+      // Используем участников из /orga/me, если они есть, иначе из /orga/{id}/members
+      let membersResult = [];
+      if (membersFromOrgMe.length > 0) {
+        // Объединяем данные: приоритет у данных из /orga/me (с joined_at), дополняем данными из /orga/{id}/members
+        const membersFromApi = membersData.status === 'fulfilled' ? membersData.value : [];
+        membersResult = membersFromOrgMe.map(meMember => {
+          const apiMember = membersFromApi.find(m => m.id === meMember.id);
+          return {
+            ...meMember,
+            ...apiMember, // Дополняем данными из API, но приоритет у joined_at из /orga/me
+            joined_at: meMember.joined_at || apiMember?.joined_at || null
+          };
+        });
+      } else {
+        membersResult = membersData.status === 'fulfilled'
+          ? membersData.value
+          : [];
+      }
 
       setOrganization(orgResult);
       setWarehouses(warehousesResult);

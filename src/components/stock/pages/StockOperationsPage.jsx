@@ -58,12 +58,52 @@ const StockOperationsPage = () => {
 
   /** Прокручивает страницу наверх */
   const scrollToTop = () => {
-    // Пытаемся найти scrollable контейнер
-    const contentWrapper = document.querySelector('.stock-content-wrapper');
-    if (contentWrapper) {
-      contentWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Находим все возможные scrollable контейнеры
+    const selectors = [
+      '.stock-content-wrapper',
+      '.stock-operations-page',
+      'main',
+      '#root',
+      'body',
+      'html'
+    ];
+    
+    // Прокручиваем все найденные контейнеры
+    selectors.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        try {
+          // Проверяем, является ли элемент scrollable
+          const isScrollable = element.scrollHeight > element.clientHeight;
+          if (isScrollable || selector === 'html' || selector === 'body') {
+            element.scrollTo({ top: 0, behavior: 'smooth' });
+            // Также устанавливаем scrollTop напрямую для надежности
+            if (element.scrollTop !== undefined) {
+              element.scrollTop = 0;
+            }
+          }
+        } catch (e) {
+          // Если scrollTo не поддерживается, используем scrollTop
+          if (element.scrollTop !== undefined) {
+            element.scrollTop = 0;
+          }
+        }
+      }
+    });
+    
+    // Прокручиваем window
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    
+    // Также прокручиваем document.documentElement
+    try {
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+    } catch (e) {
+      document.documentElement.scrollTop = 0;
     }
   };
 
