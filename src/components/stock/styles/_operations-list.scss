@@ -1,0 +1,22 @@
+.operations-list {
+  &__filters {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  &__table {
+    .MuiTableContainer-root {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+  }
+
+  &__empty {
+    padding: 40px;
+    text-align: center;
+    color: #6b7280;
+  }
+}
+

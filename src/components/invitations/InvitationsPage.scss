@@ -1,0 +1,233 @@
+@import '../organization/pages/styles/variables';
+
+.invitations-page {
+  padding: 24px;
+  min-height: 100vh;
+  background-color: $bg-light;
+  font-family: 'Unbounded', sans-serif;
+
+  &.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+}
+
+.invitations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: $text-primary;
+
+    .dark-mode & {
+      color: #ffffff;
+    }
+  }
+
+  .btn-refresh {
+    padding: 10px 20px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #4f46e5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+  }
+}
+
+.error-message {
+  padding: 16px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #991b1b;
+  margin-bottom: 24px;
+
+  .dark-mode & {
+    background: #3a1a1a;
+    border-color: #7f1d1d;
+    color: #fca5a5;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .dark-mode & {
+    background: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  p {
+    font-size: 18px;
+    color: #666;
+    margin: 0;
+
+    .dark-mode & {
+      color: #9ca3af;
+    }
+  }
+}
+
+.invitations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.invitation-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  .dark-mode & {
+    background: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .dark-mode & {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+.invitation-info {
+  flex: 1;
+
+  .invitation-organization {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: $text-primary;
+
+    .dark-mode & {
+      color: #ffffff;
+    }
+  }
+
+  .invitation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .invitation-field {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+
+    .field-label {
+      font-weight: 600;
+      color: #666;
+
+      .dark-mode & {
+        color: #9ca3af;
+      }
+    }
+
+    .field-value {
+      color: $text-primary;
+
+      .dark-mode & {
+        color: #ffffff;
+      }
+
+      &.status-accepted {
+        color: #10b981;
+      }
+
+      &.status-declined {
+        color: #ef4444;
+      }
+
+      &.status-pending {
+        color: #f59e0b;
+      }
+    }
+  }
+}
+
+.invitation-actions {
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  .btn-accept {
+    background: #10b981;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+  }
+
+  .btn-decline {
+    background: #ef4444;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+  }
+}
+

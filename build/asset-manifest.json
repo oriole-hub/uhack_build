@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/static/css/main.bfebd499.css",
+    "main.js": "/static/js/main.33dd6471.js",
+    "static/js/453.254f381f.chunk.js": "/static/js/453.254f381f.chunk.js",
+    "static/media/Unbounded-Bold.ttf": "/static/media/Unbounded-Bold.16acd5944000ba4b2140.ttf",
+    "static/media/Unbounded-Regular.ttf": "/static/media/Unbounded-Regular.d2a446434fd598e4bb22.ttf",
+    "static/media/TRYYocco-Bold.ttf": "/static/media/TRYYocco-Bold.95404105f5fea944c937.ttf",
+    "index.html": "/index.html",
+    "main.bfebd499.css.map": "/static/css/main.bfebd499.css.map",
+    "main.33dd6471.js.map": "/static/js/main.33dd6471.js.map",
+    "453.254f381f.chunk.js.map": "/static/js/453.254f381f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bfebd499.css",
+    "static/js/main.33dd6471.js"
+  ]
+}

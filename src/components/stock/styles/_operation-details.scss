@@ -1,0 +1,38 @@
+.operation-details {
+  &__section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+
+    &-title {
+      margin-bottom: 12px;
+      color: #6b7280;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  &__divider {
+    margin: 12px 0;
+  }
+
+  &__field {
+    margin-bottom: 12px;
+
+    &-label {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    &-value {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+  }
+}
+

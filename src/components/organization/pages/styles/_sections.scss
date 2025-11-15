@@ -1,0 +1,78 @@
+@import './variables';
+
+// Секции
+.organization-section {
+  margin-bottom: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    font-family: 'TRY Yocco', 'Unbounded', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0;
+
+    .dark-mode & {
+      color: #ffffff;
+    }
+  }
+}
+
+.btn-hide {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-family: 'Unbounded', sans-serif;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  .dark-mode & {
+    color: #a5b4fc;
+
+    &:hover {
+      background-color: #3a3a3a;
+    }
+  }
+}
+
+.section-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Карточка информации
+.info-card {
+  background-color: $bg-white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .dark-mode & {
+    background-color: #2a2a2a;
+  }
+}
+

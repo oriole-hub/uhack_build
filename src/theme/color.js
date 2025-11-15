@@ -1,0 +1,31 @@
+// src/theme/color.js
+export const colors = {
+  light: {
+    PAGE_BG: '#F2F2F2',
+    CARD: '#FFFFFF',
+    BTN: '#DBDBDB',
+    LABEL_TEXT: '#000000',
+    TITLE_TEXT: '#000000',
+    ACCENT: '#61F3C0',
+    INPUT_BORDER: '#F2F2F2',
+    INPUT_BG: '#FFFFFF',
+    INPUT_TEXT: '#000000',
+    INPUT_PLACEHOLDER: '#999999',
+    BTN_DISABLED: '#e9ecef',
+    EYE_ICON_FILTER: 'invert(0)',
+  },
+  dark: {
+    PAGE_BG: '#1A1A1A',
+    CARD: '#393939',
+    BTN: '#656565',
+    LABEL_TEXT: '#FFFFFF',
+    TITLE_TEXT: '#FFFFFF',
+    ACCENT: '#00ffccff',
+    INPUT_BORDER: '#333333',
+    INPUT_BG: '#2d2d2d',
+    INPUT_TEXT: '#FFFFFF',
+    INPUT_PLACEHOLDER: '#888888',
+    BTN_DISABLED: '#2d2d2d',
+    EYE_ICON_FILTER: 'invert(1)',
+  },
+};

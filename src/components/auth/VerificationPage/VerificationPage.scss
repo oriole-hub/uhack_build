@@ -1,0 +1,295 @@
+// src/components/VerificationPage/VerificationPage.scss
+@font-face {
+  font-family: 'Ubounded';
+  src: url('../../../assets/fonts/Unbounded-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'TRY Yocco';
+  src: url('../../../assets/fonts/TRYYocco-Bold.ttf') format('truetype');
+}
+
+.verification-page {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.4s ease;
+  padding: 0;
+}
+
+.verification-card {
+  border-radius: 15px;
+  width: 420px;
+  padding: 30px;
+  z-index: 2;
+  margin-left: 80px;
+  transition: background-color 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.verification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-grow: 1;
+}
+
+.verification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+}
+
+.verification-title {
+  font-family: 'TRY Yocco', Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.ogate-label {
+  font-family: 'TRY Yocco', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.verification-description {
+  font-family: 'Ubounded', Arial, sans-serif;
+  font-size: 14px;
+  text-align: center;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.verification-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.verification-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  outline: none;
+  font-family: 'Ubounded', Arial, sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+
+  &::placeholder {
+    color: #999;
+    font-size: 14px;
+  }
+
+  &:focus {
+    border-color: #61F3C0;
+    box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
+    outline: none;
+  }
+
+  &.focused {
+    box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
+  }
+
+  // Убираем браузерные стили автозаполнения
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #ffffff !important;
+  }
+
+  // Для светлой темы - черный текст
+  &:not(.dark-mode):-webkit-autofill,
+  &:not(.dark-mode):-webkit-autofill:hover,
+  &:not(.dark-mode):-webkit-autofill:focus,
+  &:not(.dark-mode):-webkit-autofill:active {
+    -webkit-text-fill-color: #000000 !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+}
+
+/* Темная тема - черные инпуты с белым текстом */
+.dark-mode .verification-input {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #333333;
+}
+
+.dark-mode .verification-input::placeholder {
+  color: #888888 !important;
+}
+
+.dark-mode .verification-input:focus {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #61F3C0;
+}
+
+.verification-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.resend-btn {
+  border: none;
+  background: none;
+  font-family: 'Ubounded', Arial, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 5px 10px;
+
+  &:hover:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.verify-btn {
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-family: 'Ubounded', Arial, sans-serif;
+  font-weight: 600;
+  border: none;
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.verification-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  padding-top: 15px;
+}
+
+.verification-link {
+  color: inherit;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.right-art {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.right-art img {
+  height: 75%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.theme-toggle-btn {
+  position: absolute;
+  bottom: 4.9%;
+  right: 2.1%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: opacity 0.3s ease;
+  padding: 0;
+  margin: 0;
+}
+
+.theme-toggle-btn:hover {
+  opacity: 0.8;
+}
+
+.theme-toggle-btn img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle-btn:hover img {
+  transform: scale(1.1);
+}
+
+.error-message {
+  padding: 10px;
+  background-color: rgba(255, 107, 107, 0.1);
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  color: #ff6b6b;
+  margin-bottom: 10px;
+  border: 1px solid #ff6b6b;
+  font-family: 'Ubounded', Arial, sans-serif;
+}
+
+.success-message {
+  padding: 10px;
+  background-color: rgba(0, 255, 0, 0.1);
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  color: green;
+  margin-bottom: 10px;
+  border: 1px solid green;
+  font-family: 'Ubounded', Arial, sans-serif;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .verification-card {
+    margin-left: 20px;
+    margin-right: 20px;
+    width: auto;
+  }
+  
+  .right-art {
+    display: none;
+  }
+}

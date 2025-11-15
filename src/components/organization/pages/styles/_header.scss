@@ -1,0 +1,139 @@
+@import './variables';
+
+// Хедер пользователя
+.page-header-user {
+  background-color: $bg-white;
+  border-radius: 12px;
+  padding: 20px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+
+  .dark-mode & {
+    background: rgba(42, 42, 42, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px 20px;
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  font-family: 'Unbounded', sans-serif;
+
+  .dark-mode & {
+    color: #ffffff;
+  }
+}
+
+.user-role {
+  font-size: 12px;
+  font-weight: 600;
+  color: $primary;
+  background-color: $primary-light;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Unbounded', sans-serif;
+
+  .dark-mode & {
+    background-color: #3b3b5c;
+    color: #a5b4fc;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+// Стили для кнопок в хедере (заменяют Material-UI Button)
+.header-actions .MuiButton-root {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  &.MuiButton-outlined {
+    border-width: 2px !important;
+    border-color: $primary !important;
+    color: $primary !important;
+    background-color: transparent !important;
+
+    &:hover {
+      background-color: $primary-light !important;
+      border-color: $primary-dark !important;
+    }
+
+    .dark-mode & {
+      border-color: #a5b4fc !important;
+      color: #a5b4fc !important;
+
+      &:hover {
+        background-color: #3b3b5c !important;
+      }
+    }
+  }
+}
+
+.btn-logout {
+  background: $error;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-family: 'Unbounded', sans-serif;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+

@@ -1,0 +1,156 @@
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+
+  &-title {
+    flex: 1;
+    margin-right: 16px;
+  }
+
+  &-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  &--compact {
+    gap: 4px;
+  }
+
+  &--vertical {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.qr-button {
+  text-transform: none;
+  font-size: 0.875rem;
+  min-width: auto;
+  padding: 6px 12px;
+  
+  &__icon {
+    margin-right: 6px;
+    font-size: 1rem;
+  }
+
+  &--small {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    
+    .qr-button__icon {
+      font-size: 0.875rem;
+      margin-right: 4px;
+    }
+  }
+}
+
+.edit-button {
+  color: #1976d2;
+  transition: all 0.2s ease-in-out;
+  min-width: auto;
+  padding: 8px;
+
+  &:hover {
+    background-color: rgba(25, 118, 210, 0.04);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &__icon {
+    font-size: 1.25rem;
+  }
+
+  &--outlined {
+    border: 1px solid #1976d2;
+    background-color: transparent;
+    
+    &:hover {
+      background-color: rgba(25, 118, 210, 0.08);
+    }
+  }
+
+  &--contained {
+    background-color: #1976d2;
+    color: white;
+    
+    &:hover {
+      background-color: #1565c0;
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+
+    &-actions {
+      justify-content: flex-end;
+    }
+  }
+
+  .card-actions {
+    justify-content: flex-end;
+    
+    &--mobile-stack {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
+  .qr-button,
+  .edit-button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .edit-button {
+    &:hover {
+      background-color: rgba(25, 118, 210, 0.1);
+    }
+
+    &--outlined {
+      border-color: #64b5f6;
+      color: #64b5f6;
+      
+      &:hover {
+        background-color: rgba(100, 181, 246, 0.1);
+      }
+    }
+  }
+}
+
+// Animation for buttons
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(25, 118, 210, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0);
+  }
+}
+
+.edit-button--pulse {
+  animation: buttonPulse 2s infinite;
+}

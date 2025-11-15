@@ -1,0 +1,18 @@
+$operation-colors: (
+  'TRANSFER': #2196F3,
+  'SALE': #4CAF50,
+  'DISPOSAL': #F44336,
+  'RECEIPT': #00BCD4,
+  'RETURN': #FF9800,
+  'ADJUSTMENT': #9C27B0
+);
+
+$operation-labels: (
+  'TRANSFER': 'Перемещение',
+  'SALE': 'Продажа',
+  'DISPOSAL': 'Утилизация',
+  'RECEIPT': 'Поступление',
+  'RETURN': 'Возврат',
+  'ADJUSTMENT': 'Корректировка'
+);
+

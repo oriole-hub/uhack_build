@@ -1,0 +1,24 @@
+.operation-form {
+  &__hint {
+    padding: 12px;
+    border-radius: 8px;
+    margin: 16px 0;
+
+    &--info {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    &--warning {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+  }
+
+  &__metadata-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+

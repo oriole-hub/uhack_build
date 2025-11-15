@@ -1,0 +1,124 @@
+.members-tab {
+  display: grid;
+  gap: 20px;
+}
+
+.members-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.members-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.members-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.members-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+}
+
+.members-table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.members-table-row:last-child {
+  border-bottom: none;
+}
+
+.member-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2196F3;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.member-details {
+  display: grid;
+  gap: 2px;
+}
+
+.member-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.member-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.member-role {
+  display: grid;
+  align-items: center;
+}
+
+.member-date {
+  display: grid;
+  align-items: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.members-actions {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  justify-content: end;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .members-table-header,
+  .members-table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .member-info {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .members-actions {
+    justify-content: center;
+  }
+
+  .members-header {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: center;
+  }
+}

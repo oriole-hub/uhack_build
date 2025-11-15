@@ -1,0 +1,302 @@
+// src/components/LoginPage/LoginPage.scss
+@font-face {
+  font-family: 'Ubounded';
+  src: url('../../../assets/fonts/Unbounded-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'TRY Yocco';
+  src: url('../../../assets/fonts/TRYYocco-Bold.ttf') format('truetype');
+}
+
+.login-page {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.4s ease;
+}
+
+.login-card {
+  border-radius: 15px;
+  width: 400px;
+  padding: 30px;
+  z-index: 2;
+  margin-left: 80px;
+  transition: background-color 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-grow: 1;
+}
+
+.login-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.login-title {
+  font-family: 'TRY Yocco', Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.ogate-label {
+  font-family: 'TRY Yocco', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.login-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.login-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 2px solid;
+  outline: none;
+  font-family: 'Ubounded', Arial, sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  
+  // Убираем браузерные стили автозаполнения
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: #ffffff !important;
+  }
+
+  // Для светлой темы
+  .dark-mode &:-webkit-autofill,
+  .dark-mode &:-webkit-autofill:hover,
+  .dark-mode &:-webkit-autofill:focus,
+  .dark-mode &:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1a1a1a inset !important;
+  }
+
+  // Для светлой темы - черный текст
+  &:not(.dark-mode):-webkit-autofill,
+  &:not(.dark-mode):-webkit-autofill:hover,
+  &:not(.dark-mode):-webkit-autofill:focus,
+  &:not(.dark-mode):-webkit-autofill:active {
+    -webkit-text-fill-color: #000000 !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  }
+
+  // Убираем браузерный глаз для пароля
+  &::-webkit-credentials-auto-fill-button {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    position: absolute;
+    right: -1000px;
+  }
+
+  &[type="password"] {
+    // Убираем стандартный глаз в Edge
+    &::-ms-reveal {
+      display: none;
+    }
+    
+    // Убираем стандартный глаз в Firefox
+    &::-moz-textfield-decoration {
+      display: none;
+    }
+  }
+
+  &.focused {
+    box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
+  }
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+  
+  // Скрываем браузерный глаз
+  input[type="password"] {
+    padding-right: 45px; // Место для нашего глаза
+    
+    &::-webkit-credentials-auto-fill-button {
+      display: none !important;
+      visibility: hidden !important;
+    }
+  }
+}
+
+.eye-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  z-index: 10; // Выше чем браузерные элементы
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  pointer-events: auto;
+}
+
+.eye-icon:hover {
+  opacity: 1;
+}
+
+.login-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  padding-top: 15px;
+}
+
+.login-btn {
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-family: 'Ubounded', Arial, sans-serif;
+  font-weight: 600;
+  cursor: not-allowed;
+  border: none;
+  font-size: 14px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.login-btn.active { 
+  cursor: pointer; 
+}
+
+.login-link {
+  color: inherit;
+  font-size: 14px;
+  text-align: left;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.right-art {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.right-art img {
+  height: 75%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.theme-toggle-btn {
+  position: absolute;
+  bottom: 4.9%;
+  right: 2.1%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: opacity 0.3s ease;
+  padding: 0;
+  margin: 0;
+}
+
+.theme-toggle-btn:hover {
+  opacity: 0.8;
+}
+
+.theme-toggle-btn img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle-btn:hover img {
+  transform: scale(1.1);
+}
+
+/* Исправления для Edge */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .login-page {
+    display: -ms-flexbox;
+  }
+  
+  .login-card {
+    margin-left: 40px;
+  }
+}
+
+/* Улучшенная поддержка для всех браузеров */
+.login-input:focus {
+  box-shadow: 0 0 0 2px rgba(97, 243, 192, 0.3);
+  outline: none;
+}
+
+/* Темная тема - черные инпуты с белым текстом */
+.dark-mode .login-input {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #333333;
+}
+
+.dark-mode .login-input::placeholder {
+  color: #888888 !important;
+}
+
+.dark-mode .login-input:focus {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #61F3C0;
+}
+
+/* Скрываем браузерные элементы управления паролем */
+input[type="password"] {
+  &::-webkit-credentials-auto-fill-button,
+  &::-webkit-caps-lock-indicator,
+  &::-webkit-strong-password-auto-fill-button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}

@@ -1,0 +1,438 @@
+// Variables
+$primary-color: #1976d2;
+$primary-hover: #1565c0;
+$error-color: #d32f2f;
+$success-color: #2e7d32;
+$warning-color: #ed6c02;
+$text-color: #333;
+$border-color: #ddd;
+$shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+$shadow-medium: 0 4px 8px rgba(0,0,0,0.15);
+$border-radius: 4px;
+$border-radius-lg: 8px;
+
+// Common grid styles
+.grid-container {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 20px;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
+}
+
+.grid-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Form errors
+.form-input {
+  &.error {
+    border-color: $error-color;
+    background-color: #ffebee;
+  }
+}
+
+.error-text {
+  color: $error-color;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+// Form sections
+.form-section {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: $border-radius-lg;
+
+  h3 {
+    margin: 0 0 15px 0;
+    color: $text-color;
+    font-size: 16px;
+  }
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+}
+
+// Status badges
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.status-active {
+    background-color: #e8f5e8;
+    color: $success-color;
+  }
+
+  &.status-inactive {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+}
+
+// Required field indicator
+.form-label {
+  &:after {
+    content: " *";
+    color: $error-color;
+  }
+
+  &:not(:has(+ .form-input[required])):after {
+    content: "";
+  }
+}
+
+// Card styles
+.card {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: 24px;
+  box-shadow: $shadow-light;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-medium;
+  }
+}
+
+// Button styles
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+
+  &-contained {
+    background-color: $primary-color;
+    color: white;
+
+    &:hover {
+      background-color: $primary-hover;
+    }
+  }
+
+  &-outlined {
+    background-color: transparent;
+    border: 1px solid $primary-color;
+    color: $primary-color;
+
+    &:hover {
+      background-color: #f0f7ff;
+    }
+  }
+
+  &-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: $border-radius;
+    transition: background-color 0.2s;
+    display: grid;
+    place-items: center;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+// Chip styles
+.chip {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+
+  &-primary {
+    background-color: $primary-color;
+    color: white;
+  }
+
+  &-success {
+    background-color: $success-color;
+    color: white;
+  }
+
+  &-warning {
+    background-color: $warning-color;
+    color: white;
+  }
+
+  &-error {
+    background-color: $error-color;
+    color: white;
+  }
+
+  &-default {
+    background-color: #666;
+    color: white;
+  }
+
+  &-outlined {
+    background-color: transparent;
+    border: 1px solid $border-color;
+    color: #666;
+  }
+}
+
+// Form styles
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: $text-color;
+  text-align: left;
+}
+
+.form-input {
+  padding: 8px 12px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+  }
+}
+
+.form-select {
+  padding: 8px 12px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 14px;
+  background-color: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// Dialog styles
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: 0;
+  min-width: 400px;
+  max-width: 600px;
+  width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+
+  @media (max-width: 768px) {
+    min-width: unset;
+    width: 95vw;
+    margin: 10px;
+  }
+
+  &-header {
+    padding: 24px 24px 0;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+      color: $text-color;
+      font-size: 1.5rem;
+    }
+  }
+
+  &-content {
+    padding: 0 24px;
+  }
+
+  &-footer {
+    padding: 16px 24px;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 12px;
+    justify-content: end;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 16px;
+
+    @media (max-width: 768px) {
+      grid-auto-flow: row;
+      justify-content: stretch;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Tab styles
+.tab-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tab-button {
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: $border-radius;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  &.active {
+    background-color: $primary-color;
+    color: white;
+
+    &:hover {
+      background-color: $primary-hover;
+    }
+  }
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+// Disable animations for Material-UI components
+.MuiBox-root,
+.MuiTabPanel-root,
+[role="tabpanel"] {
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+// Animations
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+// Skeleton loading styles
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  min-height: 16px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: rgba(255, 255, 255, 0.6);
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .dark-mode & {
+    background-color: rgba(55, 65, 81, 0.4);
+
+    &::after {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  &.skeleton-line {
+    height: 14px;
+  }
+
+  &.skeleton-title {
+    height: 32px;
+    border-radius: 14px;
+  }
+
+  &.skeleton-subtitle {
+    height: 20px;
+    border-radius: 10px;
+  }
+
+  &.skeleton-circle {
+    border-radius: 50%;
+  }
+
+  &.skeleton-rect {
+    border-radius: 16px;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

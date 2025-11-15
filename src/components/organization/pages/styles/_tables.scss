@@ -1,0 +1,89 @@
+@import './variables';
+
+// Таблица
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.info-table thead {
+  background-color: #f8f9fa;
+
+  .dark-mode & {
+    background-color: #3a3a3a;
+  }
+}
+
+.info-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: $text-primary;
+  border-bottom: 2px solid $border-light;
+  font-family: 'Unbounded', sans-serif;
+
+  .dark-mode & {
+    color: #ffffff;
+    border-bottom-color: #4a4a4a;
+  }
+}
+
+.info-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #4b5563;
+  border-bottom: 1px solid $border-light;
+  font-family: 'Unbounded', sans-serif;
+
+  .dark-mode & {
+    color: #d1d5db;
+    border-bottom-color: #4a4a4a;
+  }
+}
+
+.info-table tbody tr {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f9fafb;
+
+    .dark-mode & {
+      background-color: #3a3a3a;
+    }
+  }
+}
+
+// Кнопки действий в таблице
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .dark-mode & {
+    &:hover {
+      background-color: #3a3a3a;
+    }
+  }
+}
+

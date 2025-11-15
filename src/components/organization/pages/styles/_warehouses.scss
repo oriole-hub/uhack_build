@@ -1,0 +1,180 @@
+@import './variables';
+
+// Сетка складов
+.warehouses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.warehouse-card {
+  background-color: $bg-white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark-mode & {
+    background-color: #2a2a2a;
+  }
+}
+
+.warehouse-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+  min-width: 0;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-primary;
+    margin: 0;
+    font-family: 'Unbounded', sans-serif;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 8px;
+
+    .dark-mode & {
+      color: #ffffff;
+    }
+  }
+}
+
+.warehouse-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-select {
+  background-color: #f0f0f0;
+  color: $text-primary;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Unbounded', sans-serif;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+
+  &:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
+  }
+
+  .dark-mode & {
+    background-color: #3a3a3a;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #4a4a4a;
+    }
+  }
+}
+
+.btn-delete-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  min-width: 36px;
+  min-height: 36px;
+
+  &:hover {
+    background-color: #fee2e2;
+    transform: scale(1.1);
+  }
+
+  .dark-mode & {
+    &:hover {
+      background-color: #3a1a1a;
+    }
+  }
+}
+
+.warehouse-card-content {
+  p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #4b5563;
+    font-family: 'Unbounded', sans-serif;
+
+    .dark-mode & {
+      color: #d1d5db;
+    }
+
+    strong {
+      color: $text-primary;
+      font-weight: 600;
+
+      .dark-mode & {
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+.warehouse-edit-icon {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Пустое состояние
+.empty-state-small {
+  background-color: $bg-white;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .dark-mode & {
+    background-color: #2a2a2a;
+  }
+
+  p {
+    margin: 0 0 20px 0;
+    color: $text-secondary;
+    font-size: 16px;
+    font-family: 'Unbounded', sans-serif;
+
+    .dark-mode & {
+      color: #9ca3af;
+    }
+  }
+}
+
