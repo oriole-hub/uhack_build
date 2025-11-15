@@ -136,7 +136,7 @@ const QrCodeDialog = ({ open, onClose, organizationId, organizationName }) => {
         <div className="dialog-header">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <div>
-              <h2>QR-код организации</h2>
+              <h2>QR-код оффлайн доступа</h2>
               {organizationName && (
                 <div style={{ fontSize: '14px', marginTop: '4px', opacity: 0.9 }}>{organizationName}</div>
               )}
@@ -287,8 +287,7 @@ const QrCodeDialog = ({ open, onClose, organizationId, organizationName }) => {
               <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Инструкция</h4>
             </div>
             <div style={{ fontSize: '13px', color: '#374151' }}>
-              Отсканируйте QR-код или отправьте ссылку для присоединения к организации.
-              Новые участники смогут присоединиться до истечения срока действия.
+              Отсканируйте QR-код склада, чтобы получить оффлайн доступ к данным склада через мобильное приложение. Убедитесь, что срок действия QR-кода не истек.
             </div>
           </div>
         </div>
